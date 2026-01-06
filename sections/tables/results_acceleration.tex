@@ -1,0 +1,62 @@
+\begin{table}[!t]
+    \caption{Acceleration results after the fine-tuning with considered approaches.}
+    \centering 
+    \footnotesize
+    \begin{tabularx}{0.99\textwidth}{AA|tatt}
+
+        \toprule
+
+        \bfseries Model &
+        \bfseries Method & 
+        \bfseries Inference time, s & 
+        \bfseries Fine-tuning time, s & 
+        \bfseries Fine-tuning time acceleration, \% & 
+        \bfseries Cumulative acceleration, \%\\
+        \midrule
+        \multirow{6}{*}{\gpt{}} 
+        & \lora{} (baseline) & -- & 8965.9 & -- & --\\
+        \cmidrule{2-6}
+        & \uidl{} & 8.8 & 12504.1 & -39.5 & -39.5 \\
+        & \lisa{} & -- & 12635.3 & -40.9 & -40.9 \\
+        & \ows{} & \bfseries 5.3 & 14460.9 & -61.3 & -61.3 \\
+        & \sleb{} & 215.8 & \bfseries 7560.5 & \bfseries 16.7 & \bfseries 13.5 \\
+        & \shortllama{} & 268.7 & 7566.5 & 16.5 & 12.6 \\
+        \midrule 
+        \multirow{4}{*}{\llamaTwoSmall{}}
+        & \lora{} (baseline) & -- & 3712.6 & -- & --\\
+        \cmidrule{2-6}
+        & \uidl{} & \bfseries 446.7 & 4425.1 & -19.2 & -31.2 \\
+        & \sleb{} & 1891.1 & \bfseries 2229.9 & \bfseries 40.0 &  -11.0 \\
+        & \shortllama{} & 882.4 & 2337.3 & 37.1 & \bfseries 13.4 \\
+        \midrule 
+        \multirow{4}{*}{\llamaTwoBig{}}
+        & \lora{} (baseline) & -- & 8408.1 & -- & --\\
+        \cmidrule{2-6}
+        & \uidl{} & \bfseries 682.2 & 9628.2 & 14.5 & \bfseries -22.7 \\
+        & \sleb{} & 8907.9 &  5389.3 & 34.1 & -70.0 \\
+        & \shortllama{} & 12533.3 & \bfseries 5183.7 & \bfseries 38.3 &-110.7 \\
+        \midrule 
+        \multirow{4}{*}{\qwenSmall{}} 
+        & \lora{} (baseline) & -- & 3145.3 & -- & -- \\
+        \cmidrule{2-6}
+        & \uidl{} & \bfseries 304.0 & 3474.4 & -10.5 & -20.1 \\
+        & \sleb{} & 2265.3 & \bfseries 1837.2 & \bfseries 41.6 & -30.4 \\
+        & \shortllama{} &  1127.4 & 2013.8 & 36.1 & \bfseries 0.1 \\
+        \midrule 
+        \multirow{4}{*}{\qwenMedium{}}
+        & \lora{} (baseline) & -- & 3824.9 & -- & -- \\
+        \cmidrule{2-6}
+        & \uidl{} & \bfseries 277.1 & 4741.9 & 10.5 &  -31.2 \\
+        & \sleb{} & 1575.0 & \bfseries 2296.1 & \bfseries  40.1 & -29.7 \\
+        & \shortllama{} &  955.7 & 2467.5 & 35.5 & \bfseries 10.0 \\ 
+        \midrule 
+        \multirow{4}{*}{\qwenLarge{}} 
+        & \lora{} (baseline) & -- & 28617.7 & -- & --\\
+        \cmidrule{2-6}
+        & \uidl{} & \bfseries 1606.4 & 34279.2 & -19.8 & \bfseries -25.4 \\
+        & \sleb{} & 35594.3 & \bfseries 17188.3 & \bfseries 40.1 & -84.4 \\
+        & \shortllama{} & 32814.3 & 19069.9 & 33.4 & -81.3 \\
+        \bottomrule    
+    \end{tabularx}
+    \label{tab:acceleration}
+\end{table}

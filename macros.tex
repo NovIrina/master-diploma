@@ -1,0 +1,72 @@
+\makeatletter
+  \newcommand*\signaturelinewidth{5cm}
+  \newcommand*\signaturelineheight{.4pt}
+  \newcommand*\signaturedashleaderatom{\kern .1pt.\kern .1pt}
+  \newcommand*\signaturelineraise{.4ex}
+  \newcommand*\signaturelabelindent{.5cm}
+  \newcommand*\signaturetextindent{}
+  \newcommand{\llms}{LLMs}
+  \newcommand{\llm}{LLM}
+  \newcommand{\lora}{LoRA}
+  \newcommand{\dora}{DoRA}
+  \newcommand{\pissa}{PiSSA}
+  \newcommand{\adalora}{AdaLoRA}
+  \newcommand{\uidl}{\textit{UIDL}}
+  \newcommand{\sleb}{\textit{SLEB}}
+  \newcommand{\shortllama}{\textit{Shortened-LLaMA}}
+  \newcommand{\fullTuning}{FT}
+  \newcommand{\peft}{PEFT}
+  \newcommand{\gpt}{GPT2-M}
+  \newcommand{\llamaTwoSmall}{LLaMA2-7B}
+  \newcommand{\llamaTwoBig}{LLaMA2-13B}
+  \newcommand{\qwenSmall}{Qwen2.5-3B}
+  \newcommand{\qwenMedium}{Qwen2.5-7B}
+  \newcommand{\qwenLarge}{Qwen2.5-32B}
+  \newcommand{\eTwoENLG}{E2E-NLG}
+  \newcommand{\alpaca}{Alpaca}
+  \newcommand{\lisa}{\textit{LISA}}
+  \newcommand{\ows}{\textit{OWS}}
+
+  \newcolumntype{t}{>{\centering\arraybackslash\hsize=.18\hsize}X}
+  \newcolumntype{a}{>{\centering\arraybackslash\hsize=.17\hsize}X}
+  \newcolumntype{T}{>{\centering\arraybackslash\hsize=.3\hsize}X}
+  \newcolumntype{g}{>{\centering\arraybackslash\hsize=.09\hsize}X}
+  \newcolumntype{M}{>{\raggedright\arraybackslash\hsize=.43\hsize}X}
+  \newcolumntype{A}{>{\raggedright\arraybackslash\hsize=.32\hsize}X}
+  \newcolumntype{S}{>{\raggedright\arraybackslash\hsize=.21\hsize}X}
+  \newcolumntype{x}{>{\centering\arraybackslash\hsize=.41\hsize}X}
+  \newcolumntype{z}{>{\centering\arraybackslash\hsize=.07\hsize}X}
+  \newcolumntype{f}{>{\raggedright\arraybackslash\hsize=.19\hsize}X}
+  \newcolumntype{u}{>{\centering\arraybackslash\hsize=.21\hsize}X}
+  \newcolumntype{U}{>{\centering\arraybackslash\hsize=.23\hsize}X}
+  \newcolumntype{F}{>{\raggedright\arraybackslash\hsize=.8\hsize}X}
+
+
+  \NewDocumentCommand\signatureline{
+    O{\signaturelinewidth}      % line width
+    O{\signaturelabelindent}    % label margin
+    O{%                           text indentation
+      \ifx\@empty\signaturetextindent
+        .5\dimexpr #2\relax
+      \else
+        \signaturetextindent
+      \fi
+    }
+    m                           % label
+    O{\signaturelineheight}     % line height
+    O{\signaturelineraise}      % line raise
+    D||{}                       % text
+  }{%
+    \parbox[t]{#1}{%
+      \leftskip #3%
+      \mbox{\strut #7}%
+      \vskip -#6%
+      \hrule height #5%
+      \vskip #6%
+      \scriptsize
+      \leftskip #2%
+      \rightskip #2%
+      \strut #4%
+    }%
+  }
+\makeatother

@@ -1,0 +1,26 @@
+\begin{table}[H]
+    \caption{Training hardware used for the evaluation of considered approaches.}
+    \centering 
+    \footnotesize
+    \begin{tabularx}{0.99\textwidth}{M|x|x}
+    \toprule
+    & 
+    \bfseries \gpt{} & 
+    \bfseries \llamaTwoSmall{}, \llamaTwoBig{}, \qwenSmall{}, \qwenMedium{}, \qwenLarge{} \\
+    \midrule
+    % \bottomrule
+    Processor & CPU 32 cores with 3.0GHz & CPU 32 cores with 2.90GHz \\ 
+    \midrule
+    OS & Ubuntu 20.04.6 LTS & Ubuntu 20.04.04 LTS \\
+    \midrule
+    Driver Version & 515.43.04 & 535.183.01 \\
+    \midrule
+    Kernel Version & 5.4.0-176-generic & 5.15.0-125-generic \\
+    \midrule
+    CUDA Toolkit Version & 11.7.64 & 12.2 \\
+    \midrule
+    Traning Libraries & \textit{transformers} 4.33.0,  \textit{PyTorch} 2.1.0, \textit{DeepSpeed} 0.15.4 & \textit{transformers} 4.45.0,  \textit{PyTorch} 2.1.0, \textit{DeepSpeed} 0.15.4\\
+    \bottomrule
+\end{tabularx}
+\label{tab:hardware}
+\end{table}

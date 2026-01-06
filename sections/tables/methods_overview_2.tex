@@ -1,0 +1,37 @@
+\begin{table}[!t]
+    \caption{Summary of considered approaches for importance estimation of Transformer blocks and predicted architectures.}
+    \centering 
+    \footnotesize
+    \begin{tabularx}{0.99\textwidth}{p{2cm}F|ttg}
+
+        \toprule
+
+        \bfseries Estimated structure & 
+        \bfseries Article &
+        \bfseries Acceleration & 
+        \bfseries Quality & 
+        \bfseries Ref \\
+
+        \midrule
+
+        \multirow{9}{2cm}{Transformer block} 
+        & \textit{ShortGPT: Layers in Large Language Models are More Redundant Than You Expect} & 18.5 & -14.1 & \cite{men2024shortgptlayerslargelanguage} \\
+        \cmidrule{2-5}
+        & \textit{Outlier-weighed Layerwise Sampling for LLM Fine-tuning} & 12.3 & 3.4 & \cite{ows} \\
+        \cmidrule{2-5}
+        & \textit{The Unreasonable Ineffectiveness of the Deeper Layers} & N/A & -6.7 &  \cite{uidl} \\
+        \cmidrule{2-5}
+        & \textit{SLEB: Streamlining LLMs through Redundancy Verification and Elimination of Transformer Blocks} & 27.6 & -8.5 & \cite{sleb} \\
+        \cmidrule{2-5}
+        & \textit{Shortened LLaMA: Depth Pruning for Large Language Models with Comparison of Retraining Methods} & 23.3 & -7.4 & \cite{kim2024shortenedllamadepthpruning} \\
+        \midrule
+
+        \multirow{3}{2cm}{Architecture} 
+        & \textit{Training-free Transformer Architecture Search} & N/A & 4.2 & \cite{tf_tas} \\
+        \cmidrule{2-5}
+        & \textit{LPZero: Language Model Zero-cost Proxy Search from Zero} & N/A & 1.5 & \cite{LPZero} \\
+        \bottomrule
+
+    \end{tabularx}
+    \label{tab:overview}
+\end{table}

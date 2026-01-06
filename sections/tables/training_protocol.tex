@@ -1,0 +1,33 @@
+\begin{table}[H]
+    \caption{Training protocol used for the evaluation of considered approaches.}
+    \centering 
+    \footnotesize
+    \begin{tabularx}{0.99\textwidth}{M|x|x}
+    \toprule
+    & 
+    \bfseries \gpt{} & 
+    \bfseries \llamaTwoSmall{}, \llamaTwoBig{}, \qwenSmall{}, \qwenMedium{}, \qwenLarge{} \\
+    \midrule
+    Sequence Length & 512 & 256 \\ 
+    \midrule
+    Learning Rate & 6e-4 & 1e-5 \\
+    \midrule
+    AdamW $\beta_1$ & 0.9 & 0.9 \\
+    \midrule
+    AdamW $\beta_2$ & 0.99 & 0.99 \\
+    \midrule
+    Weight Decay & 0.01 & 0 \\
+    \midrule
+    Epochs & 2 & 2 \\
+    \midrule
+    Precision & fp16 & bf16 \\
+    \midrule
+    \lora{} $r$ & 16 & 16 \\
+    \midrule
+    \lora{} $\alpha$ & 32 &  32\\
+    \midrule
+    Ratio of Transformer blocks & 0.8 &  0.6\\
+    \bottomrule
+\end{tabularx}
+\label{tab:training_protocol}
+\end{table}

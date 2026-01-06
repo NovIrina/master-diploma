@@ -1,0 +1,48 @@
+\begin{table}[!t]
+    \caption{Summary of considered approaches for importance estimation of Transformer blocks and predicted architectures.}
+    \centering 
+    \footnotesize
+    \begin{tabularx}{0.99\textwidth}{tF|tg}
+
+        \toprule
+
+        \bfseries Estimated structure & 
+        \bfseries Article &
+        \bfseries Quality Improvement, \%& 
+        \bfseries Ref \\
+
+        \midrule 
+        \multirow{17}{*}{Weight} 
+        & \textit{The Lottery Ticket Hypothesis: Finding Sparse, Trainable Neural Networks} & 1.7 & \cite{frankle2019lotterytickethypothesisfinding} \\
+        \cmidrule{2-4}
+        & \textit{The Lottery Ticket Hypothesis for Pre-trained BERT Networks} &  0.8 & \cite
+        {chen2020lotterytickethypothesispretrained} \\
+        \cmidrule{2-4}
+        & \textit{The Super Weight in Large Language Models} &  -2.4 & \cite{yu2024superweightlargelanguage} \\
+        \cmidrule{2-4}
+        & \textit{Learning both Weights and Connections for Efficient Neural Networks} &  -15.4 & \cite{han} \\
+        \cmidrule{2-4}
+        & \textit{A Simple and Effective Pruning Approach for Large Language Models} &  -5.5 & \cite{wanda} \\
+        \cmidrule{2-4}
+        & \textit{AWQ: Activation-aware Weight Quantization for LLM Compression and Acceleration} & -2.9 & \cite{quantization_1} \\
+        \cmidrule{2-4}
+        & \textit{SqueezeLLM: Dense-and-Sparse Quantization} & 2.2 & \cite{SqueezeLLM} \\
+        \cmidrule{2-4}
+        & \textit{BERT Busters: Outlier Dimensions that Disrupt Transformers} & 1.1 & \cite{kovaleva2021bertbustersoutlierdimensions} \\
+        \midrule
+        \multirow{10}{*}{Layer} 
+        & \textit{Are all layers created equal?} &  -19.5 & \cite{zhang2022layerscreatedequal} \\
+        \cmidrule{2-4}
+        & \textit{Analyzing Multi-Head Self-Attention: Specialized Heads Do the Heavy Lifting, the Rest Can Be Pruned} & -2.4 & \cite{voita2019analyzingmultiheadselfattentionspecialized} \\
+        \cmidrule{2-4}
+        & \textit{Pay attention to MLPs} & 5.3 & \cite{liu2021payattentionmlps} \\
+        \cmidrule{2-4}
+        & \textit{Attention Is All You Need But You Don't Need All Of It For Inference of Large Language Models} & 4.1 & \cite{tyukin2024attentionneeddontneed} \\
+        \cmidrule{2-4}
+        & \textit{What Matters in Transformers? Not All Attention is Needed} & -5.7 & \cite{he2024matterstransformersattentionneeded} \\
+        \cmidrule{2-4}
+        & \textit{JoMA: Demystifying Multilayer Transformers via Joint Dynamics of MLP and Attention} & N/A & \cite{tian2024jomademystifyingmultilayertransformers} \\
+        \bottomrule    
+    \end{tabularx}
+    \label{tab:overview}
+\end{table}
