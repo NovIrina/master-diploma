@@ -1,6 +1,6 @@
-\section*{Chapter 2. Development of an approach to accelerate the fine-tuning through importance analysis}
-\addcontentsline{toc}{section}{Chapter 2. Development of an approach to accelerate the fine-tuning through importance analysis}
-\setcounter{section}{2}
+\section*{Chapter 2. Evaluation of the proposed method}
+\addcontentsline{toc}{section}{Chapter 2. Evaluation of the proposed method}
+\setcounter{section}{3}
 As has already been stated, \lora{} is the state-of-the-art PEFT method, that allows to achieve considerable acceleration and memory reduction of the fine-tuning process, while preserving the original model quality. Nevertheless, \lora{} manually attaches adapters to the whole model, which leads to computational overhead due to the LLMs over-parameterization. To optimize \lora{} fine-tuning, adapters could be applied only to the important Transformer blocks, while freezing non-essential ones. This idea allows to further decrease the number of training parameters and to reduce fine-tuning time and required memory. 
 
 \subsection{Overview of considered approaches for importance estimation}
