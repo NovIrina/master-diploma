@@ -10,27 +10,29 @@
 
     This division highlights a glaring gap: the absence of a general methodology capable of assessing the importance of substructures across different \llm{} applications. Addressing this gap is not only crucial for enhancing model efficiency but also for advancing the methodologies used in model optimization, in particular, in the field of model fine-tuning acceleration. 
 
-    The \textbf{practical significance} of this research is that it introduces a comprehensive overview of various existing importance estimation approaches as applied in distinct scenarios and presents a thorough examination of the most prominent approaches for importance analysis of Transformer blocks through the example of fine-tuning acceleration.
+    The \textbf{practical significance} of this research is that it introduces an innovative fine-tuning strategy for \llms{}, which employs both importance and convergence data to enhance the fine-tuning process.
 
     The \textbf{novelty} of this work can be summarized as follows:
     \begin{itemize}
-        \item This work introduces a comprehensive overview of existing methodologies for importance estimation of different structures, such as separate weights, layers, Transformer blocks, and even predicted architectures within the field of \llm{} across diverse application contexts. 
-        \item This research provides evaluation of the most prominent approaches for esti-mating Transformer blocks importance within the context of accelerating the fine-tuning of \llms{}.
+        \item This work introduces a comprehensive overview of the most prominent existing methodologies for importance and convergence estimation of different structures within the \llms{}. 
+        \item This study introduces a new fine-tuning approach for \llms{}, that dynamically assigns \lora{} adapters during the fine-tuning based on importance and conver-gence analysis.
     \end{itemize}
 
-    The \textbf{goal} of the present study is to accelerate the fine-tuning process by introducing the importance analysis of Transformer blocks within the \llm{}.
+    The \textbf{goal} of the present study is to accelerate the fine-tuning process while preser-ving the \llm{} quality by introducing a novel \lora{}-based fine-tuning approach.
 
     To achieve the goal, the following \textbf{objectives} must be accomplished: 
     \begin{enumerate}
-        \item Conduct comprehensive background study on the topic of fine-tuning \\ acceleration directions. 
-        \item Provide an overview of existing methodologies for estimation the saliency of various structures within \llm{} in diverse application scenarios. 
-        \item Conduct evaluation of the existing importance estimation techniques for \\ Transformer blocks in the context of accelerating the fine-tuning of \llm{}.
+        \item Conduct a comprehensive background study on the topic of fine-tuning accele-ration techniques. 
+        \item Provide an overview of existing methodologies for estimation the impotrance of various structures within \llm{} and approaches to analyze the convergence of \llms{}. 
+        \item Propose a novel \lora{}-based fine-tuning strategy.
+        \item Offer a detailed evaluation of the proposed method and its hyperparameters among various \llms{}.
+        \item Conduct a comparative analysis between the proposed solution and the closest competitors in the field.  
         \item Analyze obtained results and draw conclusion.
     \end{enumerate}
 
-    The study employs a combination of \textbf{methodological approaches} to adress the research objectives. Firstly, it adopts a method of theoretical analysis and synthesis of existing literature to establish a solid theoretical foundation for the research. Secondly, programming methods are utilized to analyze the importance of \llms{}' Transdormer blcosk. Lastly, the study employs Deep Learning techniques to fine-tune \llms{}.
+    The study employs a combination of \textbf{methodological approaches} to adress the research objectives. Firstly, it adopts a method of theoretical analysis and synthesis of existing literature to establish a solid theoretical foundation for the research. Secondly, programming methods are utilized to analyze the importance and convergence of \llms{}'. Lastly, the study employs Deep Learning techniques to fine-tune \llms{}.
 
-    The \textbf{object} of this study is the importance analysis of different structures within the \llm{}. The \textbf{subject} of the study is a thorough examination of the Transformer blocks-based importance approaches through the acceleration of fine-tuning process.
-
+    The \textbf{object} of this study is the fine-tuning acceleration of \llms{} through importance analysis of Transformer blocks. The \textbf{subject} of the study is a feasibility of developing an approach to accelerate the fine-tuning of \llms{} through the analysis of importance and convergence of Transformer blocks. 
+    
     This study was conducted as part of a \textbf{research project at the Huawei} dedicated to the fine-tuning acceleration of \llms{}.
 
