@@ -1,21 +1,9 @@
-\section*{Chapter 2. Evaluation of the proposed method}
-\addcontentsline{toc}{section}{Chapter 2. Evaluation of the proposed method}
+\section*{Chapter 3. Evaluation of the proposed method}
+\addcontentsline{toc}{section}{Chapter 3. Evaluation of the proposed method}
 \setcounter{section}{3}
-As has already been stated, \lora{} is the state-of-the-art PEFT method, that allows to achieve considerable acceleration and memory reduction of the fine-tuning process, while preserving the original model quality. Nevertheless, \lora{} manually attaches adapters to the whole model, which leads to computational overhead due to the LLMs over-parameterization. To optimize \lora{} fine-tuning, adapters could be applied only to the important Transformer blocks, while freezing non-essential ones. This idea allows to further decrease the number of training parameters and to reduce fine-tuning time and required memory. 
+To assess the feasibility of the \ourmethodshort{}, in this study a comprehensive evaluation of the proposed solution have been applied. 
 
-\subsection{Overview of considered approaches for importance estimation}
-To assess the feasibility of the aformentioned idea, in this study a comparative analysis of various methods for determining the importance of Transformer blocks within a model will be considered. The methods examined include:
-\begin{enumerate}
-    \item \uidl{} \cite{uidl} approach. After estimating the most important model layers during the inference on calibration data and further pruning of the least essential struc-tures, \uidl{} utilizes QLoRA fine-tuning to enhance model quality. 
-    \item The \sleb{} \cite{sleb} approach.
-    \item The \shortllama{} \cite{kim2024shortenedllamadepthpruning} approach. 
-    \item The \ows{} \cite{ows} approach. After estimating the importance during the inference on calibration data and further pruning of the least essential structures, \ows{} utilizes full fine-tuning to enhance model quality.
-    \item The \lisa{} \cite{lisa} approach, which randomly selects Transformer blocks during the process of full fine-tuning. This method does not rely on any deliberate heuristic to estimate the importance, that is why it can be considered as the reference approach for understanding the effect of the "importance". 
-\end{enumerate}
-Notable, all these approaches, except \lisa{}, employ different heuristics to estimate Transformer blocks importance, which could provide insights into the effectiveness of existing metrics and their correlation with \llm{} performance. Also, it helps to evaluate whether using these importance measures can optimize the fine-tuning process compared to \lora{}.
-
-For practical implementation, the official implementation of considered approaches was taken from corresponding Github repositories: \uidl{} \cite{uidl_github}, \sleb{} \cite{sleb_github}, \shortllama{} \cite{short_llama_github}, \ows{} \cite{ows}, \lisa{} \cite{lisa}.
-
+\subsection{Models}
 For the evaluation purposes six \llms{} with different number of parameters were chosen to estimate the performance on different scales \llms{}: 
 \begin{itemize}
     \item \gpt{} with 24 Transformer blocks;
@@ -27,6 +15,22 @@ For the evaluation purposes six \llms{} with different number of parameters were
 \end{itemize}
 The \gpt{} model was taken from \textit{transformers v4.33.2},  \llamaTwoSmall{}, \llamaTwoBig{}, \qwenSmall{}, \qwenMedium{}, \qwenLarge{} models were taken from HuggingFace hub \cite{huggingface:llama2-7b}, \cite{huggingface:llama2-13b}, \cite{huggingface:qwen-small}, \cite{huggingface:qwen-medium}, \cite{huggingface:qwen-large}.
 
+\subsection{Overview of considered compretitors}
+To validate the efficacy of \ourmethodshort{}, a comparative analysis was employed with alternative approaches in the domain of 
+fine-tuning acceleration and importance analysis of \llm{} layers and Transformer blocks.
+
+Examined methods to analyze the importance of Transformer blocks include:
+\begin{enumerate}
+    \item \uidl{} \cite{uidl} approach. After estimating the most important model layers during the inference on calibration data and further pruning of the least essential struc-tures, \uidl{} utilizes QLoRA fine-tuning to enhance model quality. 
+    \item The \sleb{} \cite{sleb} approach.
+    \item The \shortllama{} \cite{kim2024shortenedllamadepthpruning} approach. 
+    \item The \ows{} \cite{ows} approach. After estimating the importance during the inference on calibration data and further pruning of the least essential structures, \ows{} utilizes full fine-tuning to enhance model quality.
+    \item The \lisa{} \cite{lisa} approach, which randomly selects Transformer blocks during the process of full fine-tuning. This method does not rely on any deliberate heuristic to estimate the importance, that is why it can be considered as the reference approach for understanding the effect of the "importance". 
+\end{enumerate}
+Notable, all these approaches, except \lisa{}, employ different heuristics to estimate Transformer blocks importance, which could provide insights into the effectiveness of existing metrics and their correlation with \llm{} performance. Also, it helps to evaluate whether using these importance measures can optimize the fine-tuning process compared to \lora{}. For practical implementation, the official implementation of considered approaches was taken from corresponding Github repositories: \uidl{} \cite{uidl_github}, \sleb{} \cite{sleb_github}, \shortllama{} \cite{short_llama_github}, \ows{} \cite{ows}, \lisa{} \cite{lisa}.
+
+Since \lora{} is the cutting-edge approach for fine-tuning acceleration, it was selec-ted as a baseline for computational experiments on quality and acceleration of conside-red approaches. In addition, the most prominent modifications of \lora{}, such as \dora{} \cite{dora}, \pissa{} \cite{pissa}, and \adalora{} \cite{adalora}, also \lisa{} \cite{lisa} were chosen as reference methods during the evaluation. The implementation of \lora{}, \dora{}, \pissa{}, and \adalora{} approaches was taken from \textit{peft v.0.18.0} library \cite{peft}.
+
 \subsection{Training and evaluation protocols}
 Firstly, for the \uidl{}, \sleb{}, \shortllama{}, and \ows{} approaches the impor-tance estimation of Transformer blocks was conducted on a validation set of \alpaca{} dataset. Subsequently, for the \uidl{} the QLoRA fine-tuning was applied to key Transformer blocks, while non-essential ones were left unchanged.
 In contrast, for \ows{} the full fine-tuning of critical units was utilized, while others were frozen. Originally, \sleb{} and \shortllama{} do not employ fine-tuning to improve model performance. However, following the pruning of non-essential Transformer blocks, which involved their total removal, the \lora{} fine-tuning method was utilized to important Transformer blocks.
@@ -36,8 +40,6 @@ In contrast, for \ows{} the full fine-tuning of critical units was utilized, whi
 Used training hardware and software are described in Table \ref{tab:hardware}. Training protocol for each model is described in Table \ref{tab:training_protocol}. The \textit{Ratio of Transformer blocks} row means the ratio of Transformer blocks selected for fine-tuning with chosen approaches. Notably, the \gpt{} model requires a higher number of updated layers than all other models, because a greater number of layers in the model allows for a smaller amount of updated layers, since a substantial proportion of the layers will still be updated.
 
 After the fine-tuning, in order to estimate the final quality of the model, zero-shot accuracy was measured on commonsense reasoning datasets: PIQA \cite{piqa}, HellaSwag \cite{hellaswag}, Winogrande \cite{winogrande}, ARC \cite{arc}, OpenbookQA \cite{openbookqa}, MMLU \cite{mmlu} using the lm-evaluation-harness package \cite{lm_eval}. Zero-shot PPL was measured on language modelling dataset WikiText2 \cite{wikitext}. 
-
-Since \lora{} is the cutting-edge approach for fine-tuning acceleration, it was selec-ted as a baseline for computational experiments on quality and acceleration of conside-red approaches. The most prominent modifications of \lora{}, such as \dora{} \cite{dora}, \pissa{} \cite{pissa}, and \adalora{} \cite{adalora}, also \lisa{} \cite{lisa} were chosen as reference methods during the evaluation. The implementation of \lora{}, \dora{}, \pissa{}, and \adalora{} approaches was taken from \textit{PEFT} library \cite{peft}.
 
 \subsection{Analysis of the obtained results}
 \input{sections/tables/results_1}
