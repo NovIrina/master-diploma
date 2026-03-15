@@ -263,7 +263,7 @@
     \input{sections/tables/methods_overview_1}
     \input{sections/tables/methods_overview_2}
 
-    Therefore, overview of observed methods is presented in Table \ref{tab:overview}.
+    Therefore, overview of observed methods is presented in Table \ref{tab:overview_1} and Table \ref{tab:overview_2}.
     analysis of the current methods for evaluating the importance of various structures within \llms{} has highlighted several challenges:
     \begin{enumerate}
         \item \textbf{Lack of a Unified Methodology}. There is no standard method that applies across different scenarios, making many heuristics inapplicable or unrepresenta-tive in other contexts. Moreover, many existing solutions are completely inef-fective in assessing the importance of structures within the \llm{}.
@@ -282,8 +282,21 @@
         There are various approaches to understanding the convergence of neural networks. To begin with, the cosine similarity \cite{draganov2024hiddenpitfallscosinesimilarity} could be applied based on the assumption that as the loss function reaches the minimum point, an angle between the weights of the model decreases, indicating that the weights have been trained and since then hardly changed. Another approach is to use Frobenius norm  \cite{allenzhu2019convergencetheorydeeplearning}, \cite{arora2019convergenceanalysisgradientdescent} to estimate the difference between model weights on different training steps. Finally, gradient values \cite{liu2021autofreezeautomaticallyfreezingmodel} can be used to get the update rate of model weights therefore determining converged Transformer blocks as changing the slowest. 
 
         \begin{definition}[Convergence metrics]\label{def:convergence}
-        Let \(\nabla\) denote accumulated gradient, \(T\) denote the training interval, \(W_\xi\) denote weight vector associated with the layer, then:
-        \hl{TBD}
+        Let \(\nabla\) denote accumulated gradient, \(T\) denote the training interval, \(\|\cdot\|_F\) is a Frobenius norm, then convergence metrics can be defined as:
+        \begin{enumerate}
+            \item Cosine Similarity \cite{draganov2024hiddenpitfallscosinesimilarity}:
+            \begin{align}
+                \hat{c}(W_{\xi}) = \frac{W_{\xi(T)} \cdot W_{\xi(T - 1)}}{\|W_{\xi(T)}\|_2 \cdot \|W_{\xi(T - 1)}\|_2}
+            \end{align}
+            \item Frobenius Norm \cite{arora2019convergenceanalysisgradientdescent}
+            \begin{align}
+                \hat{c}(W_{\xi}) = \|W_{\xi(T)} - W_{\xi(T - 1)}\|_F
+            \end{align}
+            \item Gradient Norm \cite{liu2021autofreezeautomaticallyfreezingmodel}
+            \begin{align}
+                \hat{c}(W_{\xi}) = \frac{|\|\nabla W_{\xi(T)}\|_2 - \|\nabla W_{\xi(T - 1)}\|_2|}{\|\nabla W_{\xi(T - 1)}\|_2}
+            \end{align}
+        \end{enumerate}
     \end{definition}
 
         Therefore, the convergence analysis of Transformer blocks could be applied to accelerate the fine-tuning process, and blocks, that are closer to convergence are suitable for freezing. 

@@ -17,40 +17,49 @@
         \bfseries Wino-grande \\
 
         \midrule 
-        \multirow{9}{*}{\gpt{}}
+        \multirow{11}{*}{\gpt{}}
         & \lora{} (baseline) & 40.4 & 30.7 & 22.9 & 17.4 & 63.5 & 173.1 & 50.6 \\
         \cmidrule{2-9}
         & \dora{} & 39.4 & 30.3 & 22.9 & 16.6 & 62.2 & 184.2 & 50.5 \\
         & \pissa{} & 34.3 & 28.8 &  22.9 & 15.4 & 57.7 & 172.1 & 50.2 \\
         & \adalora{} & 37.6 & 30.3 &  22.9 & 17.6 & 61.7 & 179.2 & 51.4  \\
         \cmidrule{2-9}
-        & \uidl{} & 41.0 & 31.2 & \bfseries 23.0 & 17.4 & 63.1 & \bfseries 173.8 & 51.8 \\
-        & \lisa{} & \bfseries 49.1 & \bfseries 33.3 & 22.9 & \bfseries 18.6 & \bfseries 67.6 & 205.7 & \bfseries 53.1 \\
+        & \uidl{} & 41.0 & 31.2 & \bfseries 23.0 & 17.4 & 63.1 &  173.8 & 51.8 \\
+        & \lisa{} &  \bfseries 49.1 &  \bfseries 33.3 & 22.9 &  18.6 & \bfseries 67.6 & 205.7 & \bfseries 53.1 \\
         &  \ows{} & 25.4 & 25.8 & 22.9 & 12.2 & 52.6 & 180.2 & 49.1 \\
         & \sleb{} & 38.4 & 30.2 & 22.9 & 14.2 & 61.5 & 450.1 & 50.8 \\
         & \shortllama{} & 31.4 & 26.6 & 22.9 & 13.2 & 55.2 & 400.5 & 49.4 \\
-        \midrule
-        \multirow{7}{*}{\llamaTwoSmall{}}
-        & \lora{} (baseline) & 78.4 & 57.7 & 40.8 & 33.6 & 78.8 &  9.2 & 69.8 \\
         \cmidrule{2-9}
-        & \dora{} & 78.4 & 57.7 & 40.8 & 33.6 & 78.7 & 9.2 & 69.8  \\
-        & \pissa{} & 79.2 & 58.6 & 42.0 & 35.2 & 79.2 & 9.4 & 71.0 \\
+        & \cellcolor{DarkOliveGreen3} \ourmethodshort{} & \cellcolor{DarkOliveGreen3} 40.5 & \cellcolor{DarkOliveGreen3} 31.2 & \cellcolor{DarkOliveGreen3} 22.9 & \cellcolor{DarkOliveGreen3} 18.6 & \cellcolor{DarkOliveGreen3} 62.4 & \cellcolor{DarkOliveGreen3} 72.7 & \cellcolor{DarkOliveGreen3} 52.6 \\
+        & \cellcolor{DarkOliveGreen3} \ourmethodshortconv{} & \cellcolor{DarkOliveGreen3} 42.0 & \cellcolor{DarkOliveGreen3} 31.4 & \cellcolor{DarkOliveGreen3} 22.9 & \cellcolor{DarkOliveGreen3} \bfseries 19.4 & \cellcolor{DarkOliveGreen3} 64.2 & \cellcolor{DarkOliveGreen3} \bfseries 63.4 & \cellcolor{DarkOliveGreen3} 50.8 \\
+        \midrule
+        \multirow{9}{*}{\llamaTwoSmall{}}
+        & \lora{} (baseline) & 78.4 & 57.7 & 40.8 & 33.6 & 78.8 &  \bfseries 9.2 & 69.8 \\
+        \cmidrule{2-9}
+        & \dora{} & 78.4 & 57.7 & 40.8 & 33.6 & 78.7 & \bfseries 9.2 & 69.8  \\
+        & \pissa{} & \bfseries 79.2 & \bfseries 58.6 & \bfseries 42.0 & \bfseries 35.2 & \bfseries 79.2 & 9.4 & \bfseries  71.0 \\
         & \adalora{} & 77.1 & 57.3 & 41.7 & 32.4 & 78.3 & \bfseries 9.2 & 69.1 \\
         \cmidrule{2-9}
-        & \uidl{} & \bfseries 77.7 & \bfseries 57.5 & \bfseries 38.8 & \bfseries 33.4 & \bfseries 78.6 & \bfseries 9.2 & \bfseries 69.8 \\
+        & \uidl{} & 77.7 & 57.5 & 38.8 &  33.4 & 78.6 & \bfseries  9.2 &  69.8 \\
         & \sleb{} & 47.7 & 38.6 & 26.0 & 23.6 & 64.9 & 403.6 & 55.3 \\
         & \shortllama{} & 47.2 & 35.5 & 25.2 & 21.6 & 65.3 & 53.1 & 51.5 \\
+        \cmidrule{2-9}
+        & \cellcolor{DarkOliveGreen3} \ourmethodshort{} & \cellcolor{DarkOliveGreen3} 78.0 & \cellcolor{DarkOliveGreen3} 57.6 & \cellcolor{DarkOliveGreen3} 40.0 & \cellcolor{DarkOliveGreen3} 33.0 & \cellcolor{DarkOliveGreen3} 78.5 & \cellcolor{DarkOliveGreen3} \bfseries 9.2 & \cellcolor{DarkOliveGreen3} 69.5 \\
+        & \cellcolor{DarkOliveGreen3} \ourmethodshortconv{} & \cellcolor{DarkOliveGreen3} 77.8 & \cellcolor{DarkOliveGreen3} 57.5 & \cellcolor{DarkOliveGreen3} 39.9 & \cellcolor{DarkOliveGreen3} 33.0 & \cellcolor{DarkOliveGreen3} 78.4 & \cellcolor{DarkOliveGreen3} \bfseries  9.2 & \cellcolor{DarkOliveGreen3} 69.5 \\ 
         \midrule
-        \multirow{7}{*}{\llamaTwoBig{}} 
-        & \lora{} (baseline) & 80.2 & 60.4 & 53.5 & 37.0 & 79.4 & \bfseries 7.7 & 72.2 \\
+        \multirow{9}{*}{\llamaTwoBig{}} 
+        & \lora{} (baseline) & 80.2 & 60.4 & \bfseries 53.5 & 37.0 & 79.4 & \bfseries 7.7 & 72.2 \\
         \cmidrule{2-9}
-        & \dora{} & 80.2 & 60.4 & 53.4 & 37.0 & 79.3 & 7.7 & 72.0 \\
-        & \pissa{} &  80.9 & 61.3 & 53.5 & 39.2 & 80.0 & 7.9 & 71.9 \\
-        & \adalora{} & 79.6 & 60.0 & 52.3 & 35.2 & 79.1 & 7.7 & 72.4 \\
+        & \dora{} & 80.2 & 60.4 & 53.4 & 37.0 & 79.3 & \bfseries 7.7 & 72.0 \\
+        & \pissa{} &  \bfseries 80.9 & \bfseries 61.3 & \bfseries 53.5 & \bfseries 39.2 & \bfseries 80.0 & 7.9 & 71.9 \\
+        & \adalora{} & 79.6 & 60.0 & 52.3 & 35.2 & 79.1 & \bfseries 7.7 & 72.4 \\
         \cmidrule{2-9}
-        & \uidl{} &\bfseries 79.9 & \bfseries 60.5 & \bfseries 53.1 & \bfseries 37.0 & \bfseries 79.1 & \bfseries 7.7 & \bfseries 72.0 \\
+        & \uidl{} & 79.9 & 60.5 & 53.1 & 37.0 & 79.1 & \bfseries 7.7 &  72.0 \\
         & \sleb{} & 62.3 & 46.3 & 28.6 & 26.8 & 72.5 & 20.0 & 62.4 \\
         & \shortllama{} & 46.2 & 33.5 & 33.4 & 25.2 & 60.0 & 72.8 & 56.0 \\
+        \cmidrule{2-9}
+        & \cellcolor{DarkOliveGreen3} \ourmethodshort{} & \cellcolor{DarkOliveGreen3} 80.2 & \cellcolor{DarkOliveGreen3}  60.5 & \cellcolor{DarkOliveGreen3}  52.7 & \cellcolor{DarkOliveGreen3} 36.6 & \cellcolor{DarkOliveGreen3}  78.9 & \cellcolor{DarkOliveGreen3}  \bfseries 7.7 & \cellcolor{DarkOliveGreen3}  \bfseries 72.5 \\
+        & \cellcolor{DarkOliveGreen3} \ourmethodshortconv{} & \cellcolor{DarkOliveGreen3}  80.3 & \cellcolor{DarkOliveGreen3}  60.5 & \cellcolor{DarkOliveGreen3}  53.1 & \cellcolor{DarkOliveGreen3} 36.2 & \cellcolor{DarkOliveGreen3} 78.8 & \cellcolor{DarkOliveGreen3} \bfseries 7.7 & \cellcolor{DarkOliveGreen3} 72.3 \\
         \bottomrule    
     \end{tabularx}
     \label{tab:quality_1}

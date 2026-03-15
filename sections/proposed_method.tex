@@ -2,7 +2,6 @@
 \addcontentsline{toc}{section}{Chapter 2. Development of an approach to accelerate the fine-tuning through importance analysis}
 \setcounter{section}{2} 
 
-\hl{TBD Algorithm}
     The principal components of the proposed method \ourmethodshort{} (\ourmethodsFull{}) are:
     \begin{enumerate}
         \item selective \lora{} adapters assignment based on Transformer blocks importance,
@@ -14,15 +13,86 @@
     Initially, the fine-tuning process is divided into several periods, during which the algorithm switches the trainable Transformer
     blocks. Each \ourmethodshort{} period has 3 stages: statistics collection, selection of trainable Transformer blocks, and fine-tuning of the selected blocks. At the beginning of each stage, layer-wise importance and, optionally, convergence statistics are collected during h steps. Next, algorithm determines unimportant converged Transformer blocks and removes them from the selection. After that, importance sampling of Transformer blocks is applied, and the ratio of the most important Transformer blocks (\(\alpha\)) is selected for further fine-tuning. At the same time, \lora{} \(A, B\) adapters for not-trainable Transformer blocks are merged up to the end of the fine-tuning. Merging non-updatable adapters allows to further accelerate the fine-tuning process and increase memory reduction. Obviously, with each training period, the number of trainable Transformer blocks diminishes. As a result, fine-tuning stops once there are no more trainable Transformer blocks.
 
+    \begin{algorithm}
+        \caption{\ourmethodshort{} (\(\alpha, h\))}
+        \scriptsize
+        \begin{algorithmic}[1]
+            \State \(D\): fine-tuning dataset
+            \State \(\mathcal{M}_{\Phi}\): pre-trained model
+            \State \(\alpha\): trainable blocks selection ratio
+            \State \(h\): number of accumulation steps
+            \State 
+            \State \(C\ \gets \{\} \): converged Transformer blocks 
+            \State \(Q \gets \{\mathcal{M}_{\Phi}\} \): trainable Transformer blocks
+            \State \(I \gets \{\}\): accumulated importance scores
+            \State \(\mathcal{W} \gets \{\} \): accumulated layer weights
+            \State \(use\_convergence=True\)
+            \For{epoch \(i=1, \dots N\)}
+                \For{train step \(i=1, \dots, K\), global batch \(b \in D\)}
+                \State \(inp, labels \gets b\): data for forward
+                \If{\(i < h\)}
+                    \State \textbf{\{Statistics Collection + Fine-tuning Phase\}}
+                    \For{layer \(\xi\) in \(\mathcal{M}_{\Phi}\)}
+                        \State \(inp, out \gets forward(\xi, inp)\)
+                        \State \(I \gets I \cup i(\xi, inp, out)\): calculate layer importance (Definition \ref{def:importance:rules})
+                        \If{\(use\_convergence\)}
+                            \State \(\mathcal{W} \gets \mathcal{W} \cup w_{\xi}\)
+                        \EndIf
+                        \State \(grads \gets backward(loss(out, labels))\)
+                        \State \(apply\_gradients(grads)\)
+                    \EndFor
+                \ElsIf{\(i=h\)}
+                    \State \textbf{\{Selection Phase\}}
+                    \For{\(\mathcal{T}\) in \(Q\)}
+                        \State \(I_\mathcal{T} \gets I(\{w_j: w_j \in \mathcal{T}\})\): aggregate importance of Transformer blocks (\ref{eq:aggregation})
+                        \If{\(use\_convergence\)}
+                            \State \(C_{\mathcal{T}} \gets c(\{w_i: w_i \in \mathcal{T}\})\): calculate layer convergence (Definition \ref{def:convergence})
+                        \EndIf
+                    \EndFor
+                    \State \(T \gets \{\mathcal{T}_i \in Q: C_{\mathcal{T} \ge \varepsilon}\}\)
+                    \State \(P \gets softmax(\{I_{\mathcal{T}}: t_{i} \in T\})\): select with (\ref{eq:softmax})
+                    \State \(T \gets \alpha * top\_p(Q, P)\): (\ref{eq:top-p-sampling})
+                    \State \(Unfreeze(R)\)
+                    \State \(Freeze(Q \setminus R)\)
+                    \State \(Q \gets R\)
+                \Else
+                    \State \textbf{\{Fine-tuning Phase\}}
+                    \State \(inp, out \gets forward(inp)\)
+                    \State \(grads \gets backward(loss(out, labels))\)
+                    \State \(apply\_gradients(grads)\)
+                \EndIf
+                \EndFor
+            \EndFor
+        \end{algorithmic}
+    \end{algorithm}
+
     \begin{definition}\label{def:transformer-block-importance}
         Let \(T\) denote Transformer blocks, \(i_{\xi}\) denote importance score for \(\xi\) layer inside it, then importance of Transformer block is defined as:
-        \begin{equation}
+        \begin{equation}\label{eq:aggregation}
             I(T) = \frac{\sum_{\xi \in T} i_{\xi}}{|T|}
         \end{equation}
     \end{definition}
 
     \subsection{Trainable Transformer Blocks Selection}
-        \paragraph{Statistics Collection} The first step of \ourmethodshort{} is dedicated to statistics collection over several iterations of fine-tuning. During \(h\) steps, importance scores are accumulated for each layer of the model. One of the importance metrics (Definition \hl{TBD}) is employed. Notably, Magnitude \cite{han2016deepcompressioncompressingdeep} and Wanda \cite{wanda} importance rules are adapted to Transformer block importance estimation as described in Definition \ref{def:transformer-block-importance}.
+        \paragraph{Statistics Collection} The first step of \ourmethodshort{} is dedicated to statistics collection over several iterations of fine-tuning. During \(h\) steps, importance scores are accumulated for each layer of the model. Since \ourmethodshort{} aims to estimate the importance of layers or Transformer blocks within the \llm{}, only a subset of methods for assessing the importance will be suitable for this task. Among the considered approaches \magnitude{}, \wanda{}, \lisa{}, \ows{}, \uidl{}, \sleb{}, and \shortllama{} could be appropriate for solving this problem. However, approaches like \sleb{} \cite{sleb} and \shortllama{} \cite{kim2024shortenedllamadepthpruning}, which use perplexity and loss-based metrics, are unsuitable for scenarios that require dynamic freezing of non-essential Transformer blocks, as they inhibit gradient calculations. Moreover, these methods necessitate multiple forward passes to evaluate the impact of pruning on validation loss, leading to computational overhead. While \ows{} \cite{ows} and \lisa{} \cite{lisa} have shown potential for acceleration without sacrificing model quality, they still incur substantial time and memory costs because they update all parameters of chosen Transformer blocks. Consequently, \magnitude{} \cite{han2016deepcompressioncompressingdeep} and Wanda \cite{wanda} are identified as the most effective options for overcoming these limitations. In addition, the cosine similarity metric \cite{uidl} is of interest, as it allows to remove Transformer blocks without quality drop. Hence, this study employs these metrics (Definition \ref{def:importance:rules}) for importance estimation of Transformer blocks. Notably, Magnitude \cite{han2016deepcompressioncompressingdeep} and Wanda \cite{wanda} importance rules are adapted to Transformer block importance estimation as described in Definition \ref{def:transformer-block-importance}.
+
+        \begin{definition}\label{def:importance:rules}
+            Let \(W_\xi\) denote the weight tensor associated with the layer, \(X_\xi\) denote the input to the layer, \(Y_\xi\) denote the output from the layer, \(|\cdot|\) denote the absolute value operator, \(\|\cdot\|_2\) is \(\ell_2\) norm, \(W_\mathcal{T}\) denote the weight tensor associated with the Transformer block, \(X_\mathcal{T}\) denote the input to the Transformer block, \(Y_{\mathcal{T}}\) denote the output from the Transformer block. Then weight importance metrics can be defined as:
+            \begin{enumerate}
+                \item Magnitude rule \cite{han2016deepcompressioncompressingdeep}:
+                \begin{align}
+                    i(W_\xi, X_\xi, Y_\xi) = |W_\xi|
+                \end{align}
+                \item Wanda rule \cite{wanda}
+                \begin{align}
+                    i(W_\xi, X_\xi, Y_\xi) = |W_\xi| \cdot \|X_\xi\|_2
+                \end{align}
+                \item Cosine Similarity rule \cite{uidl}
+                \begin{align}
+                    i(W_\mathcal{T}, X_\mathcal{T}, Y_\mathcal{T}) = \frac{1}{\pi}\: arccos \: \left(\frac{X_\mathcal{T} \cdot Y_mathcal{T}}{\|X_\mathcal{T}\|_2 \cdot \|Y_\mathcal{T}\|_2}\right)
+                \end{align}
+            \end{enumerate}
+        \end{definition}
 
         \begin{equation}\label{eq:probability}
             P(T) = \frac{e^{I(T)}}{\sum_{k=1}^{\mathcal{M}_\Phi}e^{I(k)}},
@@ -40,7 +110,14 @@
         Besides the importance analysis, another way to estimate the essential Transformer blocks for the fine-tuning is an optional convergence analysis. It identifies fully trained Transformer blocks that could be frozen, thereby further reducing the number of trainable Transformer blocks. Once per \(h\) steps, additional statistics for convergence analysis are accumulated.
 
         \begin{definition}\label{def:convergence-rule}
-            Let \(\varepsilon\) denote convergence threshold, \(\hat{c}\) denote convergence metric. Then convergence rule for a layer is defined as: \hl{TBD}
+            Let \(\varepsilon\) denote convergence threshold, \(\hat{c}\) denote convergence metric. Then convergence rule for a layer is defined as:
+            \begin{equation*}
+                c(W_\xi) = 
+                \begin{cases}
+                    1, & \hat{c}(W_\xi) < \varepsilon \\
+                    0, & \text{otherwise}
+                \end{cases}
+            \end{equation*}
         \end{definition}
 
         \begin{definition}\label{def:convergence-inequality}
