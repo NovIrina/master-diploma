@@ -258,7 +258,7 @@
     \end{equation}
     At the same time, TF-TAS significantly reduces the number of GPU days required to estimate the predicted architecture compared with AutoFormer \cite{autoformer_ti} and ViTAS \cite{vitas}.
 
-    A comprehensive comparison study of 15 zero-cost proxies applicable to Transfor-mer architectures an \llms{} \cite{LPZero} revealed varying levels of its effectiveness. These proxies were assessed through Kendall and Spearman correlations, with values ranging from -1 to 1, where higher values indicate better predictive accuracy of neural architec-ture rankings vis-à-vis fully trained models. Despite their utility, many proxies exhibi-ted low correlation values, with Kendall's ranging from 0.01 to 0.5 and Spearman's from 0.1 to 0.5 \cite{LPZero}.
+    A comprehensive comparison study of 15 zero-cost proxies applicable to Transformer architectures an \llms{} \cite{LPZero} revealed varying levels of its effectiveness. These proxies were assessed through Kendall and Spearman correlations, with values ranging from -1 to 1, where higher values indicate better predictive accuracy of neural architec-ture rankings vis-à-vis fully trained models. Despite their utility, many proxies exhibi-ted low correlation values, with Kendall's ranging from 0.01 to 0.5 and Spearman's from 0.1 to 0.5 \cite{LPZero}.
 
     \input{sections/tables/methods_overview_1}
     \input{sections/tables/methods_overview_2}
@@ -272,7 +272,7 @@
     \end{enumerate}
 
     As a step towards addressing these challenges and a problem of optimizing the costs of fine-tuning of \llms{}, this work will 
-    introduce a novel fine-tuning strategy that dynamically allocates \lora{} adapters to Transformer blocks based on efficient importance analysis to estimate the Transformer blocks suitable for freezing to further accelerate the fine-tuning process.
+    introduce a novel fine-tuning strategy that dynamically allocates \lora{} adapters to Transformer blocks based on efficient importance analysis to estimate the Transformer blocks suitable for freezing to further accelerate the fine-tuning process. The importance analysis doesn't introduce any additional time overhead, while efficient fine-tuning allows to improve \llm{} quality after freezing certain units within the \llm{}.
 
 \subsection{Existing approaches for assessing the convergence  within \\ Large Language Models}
     \subsubsection{Definition of the convergence}

@@ -1,7 +1,10 @@
 \section*{Conclusion}
 \addcontentsline{toc}{section}{\protect\numberline{}Conclusion}
-
-This study was aimed to provide an in-depth examination of existing importance estimation techniques across various scenarios, with a particular focus on the impor-tance estimation of Transformer blocks to optimize the fine-tuning process.
+This study was aimed to address to primary objectives:
+\begin{itemize}
+    \item Provide an in-depth examination of existing importance estimation techniques across various scenarios, with a particular focus on the importance estimation of Transformer blocks to optimize the fine-tuning process.
+    \item Introduce a novel fine-tuning approach for \llms{}, that dynamically assigns \lora{} adapters during the fine-tuning based on importance and convergence analysis of Transformer blocks.
+\end{itemize}
 
 Throughout the research, the concept of "importance" was defined as the identifi-cation of structures that can be removed without significantly affecting model performance. In particular, four types of structures withing \llm{} could be estimated with the impor-tance.
 
@@ -19,24 +22,21 @@ After a comprehensive overview, several key challenges in the field of importanc
     \item \textbf{Computational Costs}: Most importance-based methods require extensive addi-tional inference on calibration data, significantly increasing time overhead.
 \end{enumerate}
 
-In the second part of this study, comparative analysis of existing approaches for evaluating the importance of Transformer blocks within LLMs during the fine-tuning process was conducted. This analysis not only assessed current techniques but also sought to optimize fine-tuning by selectively updating essential Transformer blocks. Key Transformer blocks-based importance approaches like \uidl{}, \ows{}, \sleb{}, \\ \shortllama{} were evaluated. As a baseline a cutting-edge \lora{} approach has been used. As reference methods the \lisa{} approach and the most prominent modifications of \lora{} -- \dora{}, \pissa{}, and \adalora{} -- were estimated. 
+To address the aformentioned challenges and optimize the cost of \llms{} fine-tuning, in the second part of this study, a novel \lora{}-based fine-tuning approach \ourmethodshort{}, that utilizes importance estimation for efficient reallocation of \lora{} adapters have been proposed. To thoroughly evaluate the proposed method \ourmethodshort{} a performance and comparison analysis on different \llms{} and datasets have been applied. As a baseline a cutting-edge \lora{} approach has been used. In addition, key Transformer blocks-based importance approaches like \uidl{}, \ows{}, \sleb{}, \lisa{}, and \shortllama{} and the most prominent modifications of \lora{} -- \dora{}, \pissa{}, and \adalora{} -- were chosen for reference. 
 
 The 6 models fine-tuning was estimated with considered approaches, including \gpt{}, \llamaTwoSmall{}, \llamaTwoBig{}, \qwenSmall{}, \qwenMedium{}, and \qwenLarge{}. After the fine-tuning, in order to estimate the final quality of the model, zero-shot accuracy was measured on commonsense reasoning datasets: PIQA \cite{piqa}, HellaSwag \cite{hellaswag}, Winogrande \cite{winogrande}, ARC \cite{arc}, OpenbookQA \cite{openbookqa}, MMLU \cite{mmlu} using the lm-evaluation-harness package \cite{lm_eval}. Zero-shot PPL was measured on language modelling dataset WikiText2 \cite{wikitext}.
 
 The results showed that:
 \begin{itemize}
-\item The \uidl{} method is the preferred option when quality maintenance is para-mount as this approach demonstrated robust performance improvements with fewer Transformer blocks than \lora{}. However, \uidl{} did not accelerate the process due to the required additional inference.
-\item For scenarios where speed is prioritized over certain quality loss, the \sleb{} and \shortllama{} methods are effective as these approaches provide a 38\% reduction in fine-tuning time.
-\item The \lisa{} approach is suitable when there are ample resources available for full parameter updates as it is able to accelerate the full fine-tuning process while maintaining the performance.
+    \item Proposed \ourmethodshort{} demonstrates a notable acceleration of 53\% for \qwenSmall{}, 59\% for \qwenMedium{}, 50\% for \llamaTwoSmall{}, 54\% for \llamaTwoBig{}, and 49\% for \qwenLarge{} without sacrificing the accuracy. 
+    \item Proposed \ourmethodshort{} significantly outperforms all considered reference impor-tance estimation and fine-tuning acceleration approaches from the point of fine-tuning time acceleration while preserving the quality. 
 \end{itemize}
-
-Given these findings, existing methods for estimating the importance of Transfor-mer blocks have potential for enhancing the fine-tuning process by updating only the essential units. However, there exist several limitations, that needs to be solved. First, enable the removal of non-essential units without degrading model quality. Second, efficiently pinpoint essential Transformer blocks without incurring additional time costs. Third, employ a general methodology that aligns well with overall model performance and could be applicable to various scenarios.
 
 
 Therefore, future directions of this study within research project in Huawei include:
 \begin{enumerate}
-\item Develop a general importance estimation methodology that performs well across various scenarios and structures.
-\item Create an importance estimation approach that efficiently identifies essential Transformer blocks without incurring additional time costs and without degra-ding performance.
-\item Conduct a comparative analysis of other importance estimation techniques for weights, layers, and architectures.
-\item Optimize the state-of-the-art \lora{} approach by automatically assigning \lora{} A,B adapters only to essential Transformer blocks, significantly reducing fine-tuning time while maintaining accuracy.
+\item  Provide a theoretical justification for the effectiveness of the proposed \ourmethodshort{}. 
+\item Conduct an analysis, whether entirely freezing Transformer blocks during the fine-tuning may be imprudent, since it is possible that temporarily removing them from the fine-tuning with subsequent reactivation could provide quality improve-
+ment.
+\item Explore the interoperability of \ourmethodshort{} with \lora{} modifications that could lead to mixed results when using \ourmethodshort{} with other \lora{}-based approaches.
 \end{enumerate}
