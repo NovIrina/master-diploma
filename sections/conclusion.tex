@@ -6,21 +6,8 @@ This study was aimed to address to primary objectives:
     \item Introduce a novel fine-tuning approach for \llms{}, that dynamically assigns \lora{} adapters during the fine-tuning based on importance and convergence analysis of Transformer blocks.
 \end{itemize}
 
-Throughout the research, the concept of "importance" was defined as the identifi-cation of structures that can be removed without significantly affecting model performance. In particular, four types of structures withing \llm{} could be estimated with the impor-tance.
-
-\begin{itemize}
-\item \textbf{Separate Weights}: In \llms{} certain weights act as "systematic outliers" \\ significantly deviating from the average of their distribution and susbtantially affecting model performance. 
-\item \textbf{Layers}: In \llms{} not all layers are of equal importance. Some layers exhibit a high level of redundancy, particularly within Multi-Head Attention module, while MLP layers are crucial for maintaining the overall effectiveness of the model.
-\item \textbf{Transformer blocks}: In \llms{} Transformer blocks have varying levels of redundancy, especially in middle or later layers, with initial and final layers being more critical.
-\item \textbf{Generated Architectures}: While designing Transformer models automatically, performance of predicted architectures could be estimated with importance heuristics, that approximates the model performance. 
-\end{itemize}
-
-After a comprehensive overview, several key challenges in the field of importance estimation were identified:
-\begin{enumerate}
-    \item \textbf{Lack of a Unified Methodology}: There is no general importance heuristic applicable across different scenarios and various contexts.
-    \item \textbf{Quality Degradation}: Existing solutions often reduce computational costs but at the expense of model quality, which can degrade by at least 1-2\% or completely compromise the language modeling capabilities of \llms{}.
-    \item \textbf{Computational Costs}: Most importance-based methods require extensive addi-tional inference on calibration data, significantly increasing time overhead.
-\end{enumerate}
+Throughout the research, various modern approaches for reducing time and memory overhead during the fine-tuning were considered with LoRA de facto being the state-of-the-art solution in the field. However, \lora{} manually attaches
+low-parameterized adapters to the whole model by a user-defined mask leading to computational overhead due to the \llm{}s overparametrization. Moreover, the concept of "importance" was deemed as the identifi-cation of structures that can be removed without significantly affecting model performance. It was found, that many of existing importance-based compression techniques leads to considerably quality degradation and provides substantial costs due to additional inference on calibration data. In addition, the idea of importance estimation has not been applied to optimize and improve \lora{} fine-tuning, where the number of trainable parameters, fine-tuning time, and required memory could be significantly decreased by applying adapters only to the most essential Transformer blocks, while freezing non-essential ones. 
 
 To address the aformentioned challenges and optimize the cost of \llms{} fine-tuning, in the second part of this study, a novel \lora{}-based fine-tuning approach \ourmethodshort{}, that utilizes importance estimation for efficient reallocation of \lora{} adapters have been proposed. To thoroughly evaluate the proposed method \ourmethodshort{} a performance and comparison analysis on different \llms{} and datasets have been applied. As a baseline a cutting-edge \lora{} approach has been used. In addition, key Transformer blocks-based importance approaches like \uidl{}, \ows{}, \sleb{}, \lisa{}, and \shortllama{} and the most prominent modifications of \lora{} -- \dora{}, \pissa{}, and \adalora{} -- were chosen for reference. 
 
@@ -36,7 +23,6 @@ The results showed that:
 Therefore, future directions of this study within research project in Huawei include:
 \begin{enumerate}
 \item  Provide a theoretical justification for the effectiveness of the proposed \ourmethodshort{}. 
-\item Conduct an analysis, whether entirely freezing Transformer blocks during the fine-tuning may be imprudent, since it is possible that temporarily removing them from the fine-tuning with subsequent reactivation could provide quality improve-
-ment.
+\item Conduct an analysis, whether entirely freezing Transformer blocks during the fine-tuning may be imprudent, since it is possible that temporarily removing them from the fine-tuning with subsequent reactivation could provide quality improvement.
 \item Explore the interoperability of \ourmethodshort{} with \lora{} modifications that could lead to mixed results when using \ourmethodshort{} with other \lora{}-based approaches.
 \end{enumerate}

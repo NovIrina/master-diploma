@@ -42,6 +42,11 @@ Used training hardware and software are described in Table \ref{tab:hardware}. T
 After the fine-tuning, in order to estimate the final quality of the model, zero-shot accuracy was measured on commonsense reasoning datasets: PIQA \cite{piqa}, HellaSwag \cite{hellaswag}, Winogrande \cite{winogrande}, ARC \cite{arc}, OpenbookQA \cite{openbookqa}, MMLU \cite{mmlu} using the lm-evaluation-harness package \cite{lm_eval}. Zero-shot PPL was measured on language modelling dataset WikiText2 \cite{wikitext}. 
 
 \subsection{Analysis of the obtained results}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.7\textwidth]{sections/figures/landing_chart.pdf}
+    \caption{Overall \ourmethodshort{} performance. Baseline is \lora{} fine-tuning marked as dotted black line. Quality is defined as BLEU for \gpt{}, and PPL for other models. Acceleration is computed as the ratio of time required for baseline fine-tuning to the time required for fine-tuning with \ourmethodshort{}.}
+\end{figure}
 \input{sections/tables/results_1}
 \input{sections/tables/results_2}
 \input{sections/tables/results_acceleration_1}
@@ -57,25 +62,40 @@ of \lora{} \(A, B\) adapters and \dora{} incorporates additional magnitude vecto
 
 Performance analysis of \ourmethodshort{} compared to the such state-of-the-art pruning approaches as UIDL, SLEB, and Shortened-LLaMA revealed, that \ourmethodshort{} provides 1.1\%, 43.8\%, and 79.6\% quality improvement compared to \uidl{}, \sleb{}, and \shortllama{}, respectively, and outperforms all these methods from the point of acceleration.
 
-% \subsection{Analysis of \ourmethodshort{} hyperparameters}
-% \begin{figure}[H]
-%     \centering
-%     \mbox{\noindent\begin{minipage}{0.9\textwidth}
-%         \includegraphics[width=0.7\textwidth, height=0.35\textheight]{sections/figures/ablation_alpha.pdf}\vfill
-%         \includegraphics{sections/figures/decisions.pdf}\vfill
-%     \end{minipage}}
-% \end{figure}
-
-Ablation study of \(\alpha\) and  \(h\) hyperparameters of
-\ourmethodshort{}, importance metrics (Definition \ref{def:importance:rules}), and convergence metrics (Definition \ref{def:convergence-rule}) is presented in Figure 4. They were analyzed in terms of their impact on the resulting quality and acceleration. 
-
-Analysis of the \(\alpha\) hyperparameter, depicted in Figure 4a, demonstrates that increasing \(\alpha\) significantly affects both acceleration and model quality. In particular, a maximum speedup of 72.6\% is observed at \(\alpha\) = 0.2, where only 20\% of the Transformer blocks are trained. However it leads to a 3.3\% increase in perplexity, suggesting underfitting. Minimal quality degradation (0.3\%) occurs at higher \(\alpha\) values (0.8 and 0.9), where 80-90\% of the Transformer blocks are trained initially. 
-
-In terms of the \(h\) hyperparameter, variations do not
-significantly impact quality, with only a 0.3\% change in perplexity observed between \(h\) = 1 and \(h\) = 500. The smallest hvalue accelerates fine-tuning by 29.8\%, indicating that even a single training step can adequately capture the importance of a Transformer block. This observation is supported by the relative stability of model quality across different \(h\) settings, as shown in Figure 4b. \(h\) = 10 is identified as the optimal setting for balancing speed and quality. 
-
-Further investigation into importance metrics (Definition \ref{def:importance:rules}), summarized in Figure 4c, reveals that the Magnitude metric yields the best balance between acceleration and quality. In contrast, the Wanda metric, despite considering input activations, provides a higher speedup at the
-cost of increased quality degradation by 2\% compared to the baseline. Although cosine similarity decelerates the fine-tuning on 29.6\% compared with the Magnitude, it degrades model quality the least, representing the most suitable choice, as minimizing the drop in model quality is particularly crucial in the context of importance-based fine-tuning. As a result of the convergence metrics analysis depicted in Figure 4d, it was found that any of metrics are good enough for the given fact.
-
-In conclusion, \ourmethodshort{} (\ourmethodsFull{}) is a novel \lora{}-based fine-tuning approach, that dynamically identifies important Transformer blocks of the model, and utilizes additional convergence analysis for further acceleration. The propose \ourmethodshort{} method demonstrates a notable acceleration of 53\% for \qwenSmall{}, 59\% for \qwenMedium{}, 50\% for \llamaTwoSmall{}, 54\% for \llamaTwoBig{}, and 49\% for
-\qwenLarge{} without sacrificing the accuracy. 
+\subsection{Analysis of \ourmethodshort{} hyperparameters}
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.7\textwidth]{sections/figures/ablation_alpha.pdf}
+        \caption{Sensitivity analysis of \ourmethodshort{} to \(\alpha\) hyperparameter. \(h\) is 10, importance metric is cosine similarity.}
+        \label{fig:ablation_alpha}
+    \end{figure}
+    Ablation study of \(\alpha\) hyperparameter of
+    \ourmethodshort{} is presented in Figure \ref{fig:ablation_alpha}. It was analyzed in terms of their impact on the resulting quality and acceleration. Obtained results demonstrates that increasing \(\alpha\) significantly affects both acceleration and model quality. In particular, a maximum speedup of 72.6\% is observed at \(\alpha\) = 0.2, where only 20\% of the Transformer blocks are trained. However it leads to a 3.3\% increase in perplexity, suggesting underfitting. Minimal quality degradation (0.3\%) occurs at higher \(\alpha\) values (0.8 and 0.9), where 80-90\% of the Transformer blocks are trained initially. 
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.7\textwidth]{sections/figures/ablation_h.pdf}
+        \caption{Sensitivity analysis of \ourmethodshort{} to \(h\) hyperparameter. \(\alpha\) is 0.6, importance metric is cosine similarity.}
+        \label{fig:ablation_h}
+    \end{figure}
+    Ablation study of \(h\) hyperparameter of
+    \ourmethodshort{} is presented in Figure \ref{fig:ablation_h}. It was analyzed in terms of their impact on the resulting quality and acceleration. According to the achieved results, variations do not
+    significantly impact quality, with only a 0.3\% change in perplexity observed between \(h\) = 1 and \(h\) = 500. The smallest hvalue accelerates fine-tuning by 29.8\%, indicating that even a single training step can adequately capture the importance of a Transformer block. This observation is supported by the relative stability of model quality across different \(h\) settings, as shown in Figure 4b. \(h\) = 10 is identified as the optimal setting for balancing speed and quality. 
+    \begin{figure}
+        \begin{subfigure}{}
+            \centering
+            \includegraphics[width=0.7\textwidth]{sections/figures/ablation_importance.pdf}
+            \caption{Sensitivity analysis of \ourmethodshort{} to considered importance metrics. \(\alpha\) is 0.6, \(h\) is 10.}
+            \label{fig:ablation_importance}
+        \end{subfigure}
+        \vfill
+        \begin{subfigure}{}
+            \centering
+            \includegraphics[width=0.7\textwidth]{sections/figures/ablation_convergence_metric.pdf}
+            \caption{Sensitivity analysis of \ourmethodshort{} to considered convergence metrics. \(\alpha\) is 0.6, \(h\) is 10, importance metric is cosine similarity.}
+            \label{fig:ablation_convergence}
+        \end{subfigure}
+        \caption{Sensitivity analysis of \ourmethodshort{} to considered importance and convergence metrics.}
+        \label{fig:ablation}
+    \end{figure}
+    Ablation study of importance metrics (Definition \ref{def:importance:rules}), and convergence metrics (Definition \ref{def:convergence-rule}) is presented in Figure \ref{fig:ablation}. Investigation into importance metrics (Definition \ref{def:importance:rules}), summarized in Figure \ref{fig:ablation_importance}, reveals that the Magnitude metric yields the best balance between acceleration and quality. In contrast, the Wanda metric, despite considering input activations, provides a higher speedup at the
+    cost of increased quality degradation by 2\% compared to the baseline. Although cosine similarity decelerates the fine-tuning on 29.6\% compared with the Magnitude, it degrades model quality the least, representing the most suitable choice, as minimizing the drop in model quality is particularly crucial in the context of importance-based fine-tuning. As a result of the convergence metrics analysis depicted in Figure \ref{fig:ablation_convergence}, it was found that any of metrics are good enough for the given fact.

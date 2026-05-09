@@ -8,11 +8,17 @@
         \item dynamic re-assignment of \lora{} adapters during the fine-tuning based on tally of importance statistics with subsequent reduction of the number of Transformer blocks,
         \item automatic identification of converged layers for further diminution of the number of trainable Transformer blocks.
     \end{enumerate}
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.99\textwidth]{sections/figures/id_lora.pdf}
+        \caption{Key idea of proposed fine-tuning method: \ourmethodsFull{}.}
+    \end{figure}
     The \ourmethodshort{} method is described in Algorithm 1. Let \(h\) denote history defined as the number of steps to collect importance and convergence statistics, \(\alpha\) denote the ratio of Transformer blocks to be selected for fine-tuning.
     \begin{figure}[H]
         \begin{center}
         \mbox{\noindent\begin{minipage}{0.9\textwidth}
-            \includegraphics[width=0.7\textwidth, height=0.35\textheight]{sections/figures/trajectories.pdf}\vfill
+            \centering
+            \includegraphics[width=0.9\textwidth, height=0.35\textheight]{sections/figures/trajectories.pdf}\vfill
             \includegraphics{sections/figures/decisions.pdf}\vfill
         \end{minipage}}
         \end{center}
