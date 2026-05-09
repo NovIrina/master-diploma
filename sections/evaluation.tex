@@ -1,10 +1,10 @@
 \section*{Chapter 3. Evaluation of the proposed method}
 \addcontentsline{toc}{section}{Chapter 3. Evaluation of the proposed method}
 \setcounter{section}{3}
-To assess the feasibility of the \ourmethodshort{}, in this study a comprehensive evaluation of the proposed solution have been applied. 
+To assess the feasibility of the \ourmethodshort{}, in this study a comprehensive evaluation of the proposed solution has been applied. 
 
 \subsection{Models}
-For the evaluation purposes six \llms{} with different number of parameters were chosen to estimate the performance on different scales \llms{}: 
+For the evaluation purposes, six \llms{} with different numbers of parameters were chosen to estimate the performance on different scales of \llms{}: 
 \begin{itemize}
     \item \gpt{} with 24 Transformer blocks;
     \item \llamaTwoSmall{} with 32 Transformer blocks;
@@ -15,9 +15,9 @@ For the evaluation purposes six \llms{} with different number of parameters were
 \end{itemize}
 The \gpt{} model was taken from \textit{transformers v4.33.2},  \llamaTwoSmall{}, \llamaTwoBig{}, \qwenSmall{}, \qwenMedium{}, \qwenLarge{} models were taken from HuggingFace hub \cite{huggingface:llama2-7b}, \cite{huggingface:llama2-13b}, \cite{huggingface:qwen-small}, \cite{huggingface:qwen-medium}, \cite{huggingface:qwen-large}.
 
-\subsection{Overview of considered compretitors}
+\subsection{Overview of considered competitors}
 To validate the efficacy of \ourmethodshort{}, a comparative analysis was employed with alternative approaches in the domain of 
-fine-tuning acceleration and importance analysis of \llm{} layers and Transformer blocks.
+fine-tuning acceleration and importance analy-sis of \llm{} layers and Transformer blocks.
 
 Examined methods to analyze the importance of Transformer blocks include:
 \begin{enumerate}
@@ -27,12 +27,12 @@ Examined methods to analyze the importance of Transformer blocks include:
     \item The \ows{} \cite{ows} approach. After estimating the importance during the inference on calibration data and further pruning of the least essential structures, \ows{} utilizes full fine-tuning to enhance model quality.
     \item The \lisa{} \cite{lisa} approach, which randomly selects Transformer blocks during the process of full fine-tuning. This method does not rely on any deliberate heuristic to estimate the importance, that is why it can be considered as the reference approach for understanding the effect of the "importance". 
 \end{enumerate}
-Notable, all these approaches, except \lisa{}, employ different heuristics to estimate Transformer blocks importance, which could provide insights into the effectiveness of existing metrics and their correlation with \llm{} performance. Also, it helps to evaluate whether using these importance measures can optimize the fine-tuning process compared to \lora{}. For practical implementation, the official implementation of considered approaches was taken from corresponding Github repositories: \uidl{} \cite{uidl_github}, \sleb{} \cite{sleb_github}, \shortllama{} \cite{short_llama_github}, \ows{} \cite{ows}, \lisa{} \cite{lisa}.
+Notably, all these approaches, except \lisa{}, employ different heuristics to estimate Transformer block importance, which could provide insights into the effectiveness of existing metrics and their correlation with \llm{} performance. Also, it helps to evaluate whether using these importance measures can optimize the fine-tuning pro-cess compared to \lora{}. For practical implementation, the official implementation of con-sidered approaches was taken from corresponding Github repositories: \uidl{} \cite{uidl_github}, \sleb{} \cite{sleb_github}, \shortllama{} \cite{short_llama_github}, \ows{} \cite{ows}, \lisa{} \cite{lisa}.
 
-Since \lora{} is the cutting-edge approach for fine-tuning acceleration, it was selec-ted as a baseline for computational experiments on quality and acceleration of conside-red approaches. In addition, the most prominent modifications of \lora{}, such as \dora{} \cite{dora}, \pissa{} \cite{pissa}, and \adalora{} \cite{adalora}, also \lisa{} \cite{lisa} were chosen as reference methods during the evaluation. The implementation of \lora{}, \dora{}, \pissa{}, and \adalora{} approaches was taken from \textit{peft v.0.18.0} library \cite{peft}.
+Since \lora{} is the cutting-edge approach for fine-tuning acceleration, it was selec-ted as a baseline for computational experiments on quality and acceleration of conside-red approaches. In addition, the most prominent modifications of \lora{}, such as \dora{} \cite{dora}, \pissa{} \cite{pissa}, \adalora{} \cite{adalora}, and \lisa{} \cite{lisa} were chosen as reference methods during the evaluation. The implementation of \lora{}, \dora{}, \pissa{}, and \adalora{} approaches was taken from the \textit{peft v.0.18.0} library \cite{peft}.
 
 \subsection{Training and evaluation protocols}
-Firstly, for the \uidl{}, \sleb{}, \shortllama{}, and \ows{} approaches the impor-tance estimation of Transformer blocks was conducted on a validation set of \alpaca{} dataset. Subsequently, for the \uidl{} the QLoRA fine-tuning was applied to key Transformer blocks, while non-essential ones were left unchanged.
+Firstly, for the \uidl{}, \sleb{}, \shortllama{}, and \ows{} approaches, the impor-tance estimation of Transformer blocks was conducted on a validation set of the \alpaca{} dataset. Subsequently, for the \uidl{} the QLoRA fine-tuning was applied to key Transformer blocks, while non-essential ones were left unchanged.
 In contrast, for \ows{} the full fine-tuning of critical units was utilized, while others were frozen. Originally, \sleb{} and \shortllama{} do not employ fine-tuning to improve model performance. However, following the pruning of non-essential Transformer blocks, which involved their total removal, the \lora{} fine-tuning method was utilized to important Transformer blocks.
 
 \input{sections/tables/hardware_software}
@@ -45,40 +45,40 @@ After the fine-tuning, in order to estimate the final quality of the model, zero
 \begin{figure}
     \centering
     \includegraphics[width=0.7\textwidth]{sections/figures/landing_chart.pdf}
-    \caption{Overall \ourmethodshort{} performance. Baseline is \lora{} fine-tuning marked as dotted black line. Quality is defined as BLEU for \gpt{}, and PPL for other models. Acceleration is computed as the ratio of time required for baseline fine-tuning to the time required for fine-tuning with \ourmethodshort{}.}
+    \caption{Overall \ourmethodshort{} performance. The baseline is \lora{} fine-tuning marked as dotted black line. Quality is defined as BLEU for \gpt{}, and PPL for other models. Acceleration is computed as the ratio of time required for baseline fine-tuning to the time required for fine-tuning with \ourmethodshort{}.}
 \end{figure}
 \input{sections/tables/results_2}
 \input{sections/tables/results_acceleration_1}
 \input{sections/tables/results_acceleration_2}
 
-Computational experiments with chosen models and approaches are presentend in Table \ref{tab:quality_1}, Table \ref{tab:quality_2}, Table \ref{tab:acceleration_1}, Table \ref{tab:acceleration_2}. The best results of fine-tuning acceleration are presented in Table \ref{tab:acceleration_1} and Table \ref{tab:acceleration_2}, while the best results on quality are presented in Table \ref{tab:quality_1} and Table \ref{tab:quality_2}, where for \textit{Wikitext} the quality is measured as perplexity and a lower is better. For other datasets the quality is measured as accuracy and a higher is better. It is important to note, that for LLaMA-family and Qwen-family models the evaluation of \lisa{} and \ows{} approaches was not presented, as memory requirements on the full fine-tuning of these models did not fit to used hardware.
+Computational experiments with chosen models and approaches are presented in Table \ref{tab:quality_1}, Table \ref{tab:quality_2}, Table \ref{tab:acceleration_1}, Table \ref{tab:acceleration_2}. The best results of fine-tuning acceleration are presented in Table \ref{tab:acceleration_1} and Table \ref{tab:acceleration_2}, while the best results on quality are presented in Table \ref{tab:quality_1} and Table \ref{tab:quality_2}, where for \textit{Wikitext} the quality is measured as perplexity, and a lower value is better. For other datasets the quality is measured as accuracy, and a higher is better. It is important to note, that for LLaMA-family and Qwen-family models, the evaluation of \lisa{} and \ows{} approaches was not presented, as memory requirements on the full fine-tuning of these models did not fit to used hardware.
 
 \ourmethodshort{} provides an average acceleration of 33.1\%
-with considerable maximum speed up of 44.8\% for \llamaTwoBig{}
-with quality decrease less than 0.1\%. Additional convergence analysis allows \ourmethodshort{} to stop training earlier by ensuring the convergence of all Transformer blocks, leading to the increased speedup on average at 54.8\% over \ourmethodshort{} without convergence analysis. \ourmethodshortconv{} provides a greater quality degradation of 0.3\% compared to the baseline \lora{} approach, as some Transformer blocks during the fine-tuning process may not receive essential information
+with a considerable maximum speedup of 44.8\% for \llamaTwoBig{}
+with a quality decrease of less than 0.1\%. Addi-tional convergence analysis allows \ourmethodshort{} to stop training earlier by ensuring the convergence of all Transformer blocks, leading to the increased speedup on average at 54.8\% over \ourmethodshort{} without convergence analysis. \ourmethodshortconv{} provides a greater quality degradation of 0.3\% compared to the baseline \lora{} approach, as some Transformer blocks during the fine-tuning process may not receive essential information
 because of the early stop. In addition, \ourmethodshort{} significantly outperforms \pissa{}, \dora{}, and \adalora{} from the point of acceleration, and provides 0.8\% of quality improvement compared to \adalora{}. However, it leads to 0.1\% and 1.6\% quality decrease compared to \dora{} and \pissa{} respectively as \pissa{} employs SVD initialization
 of \lora{} \(A, B\) adapters and \dora{} incorporates additional magnitude vector during the fine-tuning.
 
-Performance analysis of \ourmethodshort{} compared to the such state-of-the-art pruning approaches as UIDL, SLEB, and Shortened-LLaMA revealed, that \ourmethodshort{} provides 1.1\%, 43.8\%, and 79.6\% quality improvement compared to \uidl{}, \sleb{}, and \shortllama{}, respectively, and outperforms all these methods from the point of acceleration.
+Performance analysis of \ourmethodshort{} compared to the such state-of-the-art pruning approaches as UIDL, SLEB, and Shortened-LLaMA revealed, that \ourmethodshort{} provides 1.1\%, 43.8\%, and 79.6\% quality improvement compared to \uidl{}, \sleb{}, and \\ \shortllama{}, respectively, and outperforms all these methods from the point of acceleration.
 
 \subsection{Analysis of \ourmethodshort{} hyperparameters}
     \begin{figure}
         \centering
         \includegraphics[width=0.7\textwidth]{sections/figures/ablation_alpha.pdf}
-        \caption{Sensitivity analysis of \ourmethodshort{} to \(\alpha\) hyperparameter. \(h\) is 10, importance metric is cosine similarity.}
+        \caption{Sensitivity analysis of \ourmethodshort{} to the \(\alpha\) hyperparameter. \(h\) is 10, importance metric is cosine similarity.}
         \label{fig:ablation_alpha}
     \end{figure}
-    Ablation study of \(\alpha\) hyperparameter of
-    \ourmethodshort{} is presented in Figure \ref{fig:ablation_alpha}. It was analyzed in terms of their impact on the resulting quality and acceleration. Obtained results demonstrates that increasing \(\alpha\) significantly affects both acceleration and model quality. In particular, a maximum speedup of 72.6\% is observed at \(\alpha\) = 0.2, where only 20\% of the Transformer blocks are trained. However it leads to a 3.3\% increase in perplexity, suggesting underfitting. Minimal quality degradation (0.3\%) occurs at higher \(\alpha\) values (0.8 and 0.9), where 80-90\% of the Transformer blocks are trained initially. 
+    Ablation study of the \(\alpha\) hyperparameter of
+    \ourmethodshort{} is presented in Figure \ref{fig:ablation_alpha}. It was analyzed in terms of their impact on the resulting quality and acceleration. Obtained results demonstrates that increasing \(\alpha\) significantly affects both acceleration and model quality. In particular, a maximum speedup of 72.6\% is observed at \(\alpha\) = 0.2, where only 20\% of the Transformer blocks are trained. However, it leads to a 3.3\% increase in perplexity, suggesting underfitting. Minimal quality degradation (0.3\%) occurs at higher \(\alpha\) values (0.8 and 0.9), where 80-90\% of the Transformer blocks are trained initially. 
     \begin{figure}
         \centering
         \includegraphics[width=0.7\textwidth]{sections/figures/ablation_h.pdf}
-        \caption{Sensitivity analysis of \ourmethodshort{} to \(h\) hyperparameter. \(\alpha\) is 0.6, importance metric is cosine similarity.}
+        \caption{Sensitivity analysis of \ourmethodshort{} to the \(h\) hyperparameter. \(\alpha\) is 0.6, importance metric is cosine similarity.}
         \label{fig:ablation_h}
     \end{figure}
-    Ablation study of \(h\) hyperparameter of
+    Ablation study of the \(h\) hyperparameter of
     \ourmethodshort{} is presented in Figure \ref{fig:ablation_h}. It was analyzed in terms of their impact on the resulting quality and acceleration. According to the achieved results, variations do not
-    significantly impact quality, with only a 0.3\% change in perplexity observed between \(h\) = 1 and \(h\) = 500. The smallest hvalue accelerates fine-tuning by 29.8\%, indicating that even a single training step can adequately capture the importance of a Transformer block. This observation is supported by the relative stability of model quality across different \(h\) settings, as shown in Figure 4b. \(h\) = 10 is identified as the optimal setting for balancing speed and quality. 
+    significantly impact quality, with only a 0.3\% change in perplexity was observed between \(h\) = 1 and \(h\) = 500. The smallest hvalue accelerates fine-tuning by 29.8\%, indicating that even a single training step can adequately capture the importance of a Transformer block. This observation is supported by the relative stability of model quality across different \(h\) settings, as shown in Figure 4b. \(h\) = 10 is identified as the optimal setting for balancing speed and quality. 
     \begin{figure}
         \begin{subfigure}{}
             \centering
@@ -97,4 +97,4 @@ Performance analysis of \ourmethodshort{} compared to the such state-of-the-art 
         \label{fig:ablation}
     \end{figure}
     Ablation study of importance metrics (Definition \ref{def:importance:rules}), and convergence metrics (Definition \ref{def:convergence-rule}) is presented in Figure \ref{fig:ablation}. Investigation into importance metrics (Definition \ref{def:importance:rules}), summarized in Figure \ref{fig:ablation_importance}, reveals that the Magnitude metric yields the best balance between acceleration and quality. In contrast, the Wanda metric, despite considering input activations, provides a higher speedup at the
-    cost of increased quality degradation by 2\% compared to the baseline. Although cosine similarity decelerates the fine-tuning on 29.6\% compared with the Magnitude, it degrades model quality the least, representing the most suitable choice, as minimizing the drop in model quality is particularly crucial in the context of importance-based fine-tuning. As a result of the convergence metrics analysis depicted in Figure \ref{fig:ablation_convergence}, it was found that any of metrics are good enough for the given fact.
+    cost of increased quality degradation by 2\% compared to the baseline. Although cosine similarity decelerates the fine-tuning on 29.6\% compared with the Magnitude, it degrades model quality the least, representing the most suitable choice, as minimizing the drop in model quality is particularly crucial in the context of importance-based fine-tuning. As a result of the convergence metrics analysis depicted in Figure \ref{fig:ablation_convergence}, it was found that any of the metrics are good enough for the given fact.

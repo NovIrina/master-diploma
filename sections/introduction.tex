@@ -3,10 +3,10 @@
 \addcontentsline{toc}{section}{\protect\numberline{}Introduction}
 
     The \textbf{relevance} of this work is determined by the pivotal role that Large Language Models (LLMs) currently play in various domains including machine learning \cite{machine_learning}, computer vision \cite{computer_vision}, and natural language processing \cite{brown2020languagemodelsfewshotlearners}. These pre-trained LLMs are actively employed in numerous industrial applications, prized for their proficiency in tasks such as in-context learning \cite{brown2020languagemodelsfewshotlearners}, instruction following \cite{instruction_following}, and structured reasoning \cite{reasoning}. However, the capabilities of a pre-trained LLM may not be sufficient to tackle
-    more specialized tasks, for example in medical or scientific domains. This necessitates extensive fine-tuning to tailor the models for specific downstream tasks. However, the fine-tuning process is extremely resource-consuming and demands signi-ficant
-    memory and time resources resulting in low training throughput \cite{malladi2024finetuninglanguagemodelsjust}. This way, the evolvement of novel fine-tuning strategies that reduce time and memory costs without sacrificing model quality is of great importance.
+    more specialized tasks, for example, in medical or scientific domains. This necessitates extensive fine-tuning to tailor the models for specific downstream tasks. However, the fine-tuning process is extremely resource-consuming and demands signi-ficant
+    memory and time resources, resulting in low training throughput \cite{malladi2024finetuninglanguagemodelsjust}. This way, the evolvement of novel fine-tuning strategies that reduce time and memory costs without sacrificing model quality is of great importance.
 
-    At the same time, given the vast parameter space of modern LLMs, which results in a significant over-parameterization \cite{overparametrization}, identifying and leveraging the most essen-tial model structures becomes crucial. These structures are vital as they dispropor-tionately impact model performance \cite{yu2024superweightlargelanguage}. Effective utilisation of LLMs in various scenarios -- whether pre-training, fine-tuning, or inference -- demands a nuanced understanding of "importance" to discern these critical structures. This requirement extends across multiple optimization strategies including Neural Architecture Search \cite{LPZero} (NAS), \cite{synflow}, \cite{snip}, Parameter-Efficient Fine-Tuning (\peft{}) \cite{adalora}, \cite{lisa}, quantiza-tion \cite{quantization_1}, \cite{int8}, \cite{SqueezeLLM}, and model pruning \cite{uidl}, \cite{sleb}, \cite{wanda}. Each of these strategies aims to optimize different aspects of model architecture, yet they often rely on disparate heuristics for estimating importance, many of which lack general applicability or direct correlation with model quality \cite{LPZero}.
+    At the same time, given the vast parameter space of modern LLMs, which results in a significant over-parameterization \cite{overparametrization}, identifying and leveraging the most essen-tial model structures becomes crucial. These structures are vital as they dispropor-tionately impact model performance \cite{yu2024superweightlargelanguage}. Effective utilization of LLMs in various scenarios -- whether pre-training, fine-tuning, or inference -- demands a nuanced understanding of "importance" to discern these critical structures. This requirement extends across multiple optimization strategies, including Neural Architecture Search \cite{LPZero} (NAS), \cite{synflow}, \cite{snip}, Parameter-Efficient Fine-Tuning (\peft{}) \cite{adalora}, \cite{lisa}, quantiza-tion \cite{quantization_1}, \cite{int8}, \cite{SqueezeLLM}, and model pruning \cite{uidl}, \cite{sleb}, \cite{wanda}. Each of these strategies aims to optimize different aspects of model architecture, yet they often rely on disparate heuristics for estimating importance, many of which lack general applicability or direct correlation with model quality \cite{LPZero}.
 
     This division highlights a glaring gap: the absence of a general methodology capable of assessing the importance of substructures across different \llm{} applica-tions. Addressing this gap is not only crucial for enhancing model efficiency but also for advancing the methodologies used in model optimization, in particular, in the field of model fine-tuning acceleration. 
 
@@ -14,7 +14,7 @@
 
     The \textbf{novelty} of this work can be summarized as follows:
     \begin{itemize}
-        \item This work introduces a comprehensive overview of the most prominent existing methodologies for importance and convergence estimation of different structures within the \llms{}. 
+        \item This work introduces a comprehensive overview of the most prominent existing methodologies for importance and convergence estimation of different structu-res within the \llms{}. 
         \item This study introduces a new fine-tuning approach for \llms{}, that dynamically assigns \lora{} adapters during the fine-tuning based on importance and conver-gence analysis.
     \end{itemize}
 
@@ -23,16 +23,16 @@
     To achieve the goal, the following \textbf{objectives} must be accomplished: 
     \begin{enumerate}
         \item Conduct a comprehensive background study on the topic of fine-tuning accele-ration techniques. 
-        \item Provide an overview of existing methodologies for estimation the impotrance of various structures within \llm{} and approaches to analyze the convergence of \llms{}. 
+        \item Provide an overview of existing methodologies for estimating the importance of various structures within \llm{} and approaches to analyze the convergence of \llms{}. 
         \item Propose a novel \lora{}-based fine-tuning strategy.
         \item Offer a detailed evaluation of the proposed method and its hyperparameters among various \llms{}.
         \item Conduct a comparative analysis between the proposed solution and the closest competitors in the field.  
         \item Analyze obtained results and draw conclusion.
     \end{enumerate}
 
-    The study employs a combination of \textbf{methodological approaches} to adress the research objectives. Firstly, it adopts a method of theoretical analysis and synthesis of existing literature to establish a solid theoretical foundation for the research. Secondly, programming methods are utilized to analyze the importance and convergence of \llms{}'. Lastly, the study employs Deep Learning techniques to fine-tune \llms{}.
+    The study employs a combination of \textbf{methodological approaches} to address the research objectives. Firstly, it adopts a method of theoretical analysis and synthesis of existing literature to establish a solid theoretical foundation for the research. Secondly, programming methods are utilized to analyze the importance and convergence of \llms{}'. Lastly, the study employs Deep Learning techniques to fine-tune \llms{}.
 
-    The \textbf{object} of this study is the fine-tuning acceleration of \llms{} through importance analysis of Transformer blocks. The \textbf{subject} of the study is a feasibility of developing an approach to accelerate the fine-tuning of \llms{} through the analysis of importance and convergence of Transformer blocks. 
+    The \textbf{object} of this study is the fine-tuning acceleration of \llms{} through importan-ce analysis of Transformer blocks. The \textbf{subject} of the study is the feasibility of developing an approach to accelerate the fine-tuning of \llms{} through the analysis of importance and convergence of Transformer blocks. 
     
     This study was conducted as part of a \textbf{research project at the Huawei} dedicated to the fine-tuning acceleration of \llms{}.
 
