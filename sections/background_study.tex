@@ -86,7 +86,7 @@
     \end{equation}
     where $W_0, \Delta W \in \mathbb{R}^{d_1 \times d_2}, A \in \mathbb{R}^{r \times d_2}, B \in \mathbb{R}^{d_1 \times r}, r \ll (d_1, d_2)$. $A, B$ matrices are called \lora{} adapters. 
 
-    By greatly decreasing the number of model parameters, \lora{} provides up to 50\% memory reduction and 150\% acceleration compared to full fine-tuning. Although \lora{} is a state-of-the-art approach, it still has several drawbacks. First, \lora{} lacks the nuanced capability for more subtle weight adjustment during the fine-tuning \cite{dora}. Second, \lora{} adapters initialization approach could lead to a slower model convergence \cite{pissa}. Third, \lora{} overlooks the varying importance of different weight matrices \cite{adalora}. Therefore, DoRA \cite{dora}, PiSSA \cite{pissa}, and AdaLoRA \cite{adalora} are deemed promising improvements of \lora{}.
+    By greatly decreasing the number of model parameters, \lora{} provides up to 50\% memory reduction and 150\% acceleration compared to full fine-tuning. Although \lora{} is a state-of-the-art approach, it still has several drawbacks. First, \lora{} lacks the nuanced capability for more subtle weight adjustment during the fine-tuning \cite{dora}. Second, \lora{} adapters initialization approach could lead to a slower model conver-gence \cite{pissa}. Third, \lora{} overlooks the varying importance of different weight matrices \cite{adalora}. Therefore, DoRA \cite{dora}, PiSSA \cite{pissa}, and AdaLoRA \cite{adalora} are deemed promising improvements of \lora{}.
     
     \dora{} \cite{dora} approach suggests to decompose the pre-trained weights $W_0$ into \textit{mag-nitude} and \textit{direction} components (\ref{eq:dora}). \textit{Magnitude} is a trainable vector $M = \|W_0\|_c$, which represents a vector-wise norm of a matrix across each column. \textit{Direction} is the ratio of the pre-trained weight matrix to its norm. The \textit{direction} component is updated using \lora{} \cite{lora}.
     
@@ -98,7 +98,7 @@
 
     \pissa{} \cite{pissa} approach modifies the \lora{} by initializing $A$ and $B$ adapter matrices with the principal components of the original matrix $W$ computed utilizing Singular Value Decomposition. Thus, trainable adapters contain the most essential directions of $W$, that is why training adapters mirrors the process of the entire model fine-tuning.  \pissa{} provides up to 21.05\% of quality improvement on \llamaTwoSmall{} fine-tuning compared with \lora{}. 
 
-    \adalora{} \cite{adalora} approach adaptively allocates the parameter budget among the weight matrices accroding to their importance score. It re-parametrizes the incremen-tal updates in the form of Singular Value Decomposition and modifies the \lora{} forward pass as follows \ref{eq:adalora}. 
+    \adalora{} \cite{adalora} approach adaptively allocates the parameter budget among the weight matrices accroding to their importance score. It re-parametrizes the incremen-tal updates in the form of Singular Value Decomposition and modifies the \lora{} forward pass as follows (\ref{eq:adalora}). 
 
     \begin{equation}\label{eq:adalora}
         h = W_0x + \Delta W_x = W_0x + P \Lambda Q,

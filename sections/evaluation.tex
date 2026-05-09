@@ -40,14 +40,13 @@ In contrast, for \ows{} the full fine-tuning of critical units was utilized, whi
 Used training hardware and software are described in Table \ref{tab:hardware}. Training protocol for each model is described in Table \ref{tab:training_protocol}. The \textit{Ratio of Transformer blocks} row means the ratio of Transformer blocks selected for fine-tuning with chosen approaches. Notably, the \gpt{} model requires a higher number of updated layers than all other models, because a greater number of layers in the model allows for a smaller amount of updated layers, since a substantial proportion of the layers will still be updated.
 
 After the fine-tuning, in order to estimate the final quality of the model, zero-shot accuracy was measured on commonsense reasoning datasets: PIQA \cite{piqa}, HellaSwag \cite{hellaswag}, Winogrande \cite{winogrande}, ARC \cite{arc}, OpenbookQA \cite{openbookqa}, MMLU \cite{mmlu} using the lm-evaluation-harness package \cite{lm_eval}. Zero-shot PPL was measured on language modelling dataset WikiText2 \cite{wikitext}. 
-
+\input{sections/tables/results_1}
 \subsection{Analysis of the obtained results}
 \begin{figure}
     \centering
     \includegraphics[width=0.7\textwidth]{sections/figures/landing_chart.pdf}
     \caption{Overall \ourmethodshort{} performance. Baseline is \lora{} fine-tuning marked as dotted black line. Quality is defined as BLEU for \gpt{}, and PPL for other models. Acceleration is computed as the ratio of time required for baseline fine-tuning to the time required for fine-tuning with \ourmethodshort{}.}
 \end{figure}
-\input{sections/tables/results_1}
 \input{sections/tables/results_2}
 \input{sections/tables/results_acceleration_1}
 \input{sections/tables/results_acceleration_2}
