@@ -2,13 +2,9 @@
 \addcontentsline{toc}{section}{Chapter 1. Theoretical foundations of fine-tuning \\ acceleration through importance analysis}
 \setcounter{section}{1}
 
-    Nowadays \llms{} have recently become the primary
-    choice for various natural language processing scenarios. 
-    Unfortunately, the performance of a generic pre-trained model is usually not enough for a specific downstream task. Therefore, it is required to adapt a model for a new domain, which is called fine-tuning \cite{full_fine_tuning}. 
+    The goal of the present study is to develop a method for accelerating the fine-tuning of Large Language Models. However, the development of a novel approach requires a comprehensive analysis of existing techniques and promising ideas in this field, which can be leveraged in future work. This chapter is dedicated to such a thorough analysis and review.
     
-    Despite significantly improving \llms{} performance on different scenarios, full fine-tuning of \llms{} is an extremely resource-intensive process for several compelling reasons. Firstly, every year, the size of LLM grows, leading to a rise in computational costs and hardware requirements. For instance, the \llamaTwoSmall{} model has \\ approximately 100 times fewer trainable parameters compared to the DeepSeek-V3 model. Secondly, since 2016, there has been an increase in the amortized cost of computing by about 2.4 times per year \cite{costs} with a prediction to exceed 1 billion by 2027. For instance, the fine-tuning of the GPT-3 model, released in 2020, on a large dataset, necessitates over 3.5 million GPU hours \cite{li2025flm101bopenllmtrain} and the full fine-tuning of the \llamaTwoSmall{} model demands more than 140GB of GPU memory \cite{lv2024parameterfinetuninglargelanguage}, \cite{zhang2024revisitingzerothorderoptimizationmemoryefficient}. Finally, the environmental factor is significant too. For example, LLaMA3.1-405B model, released in the summer of 2024, requires 25.3 million watts, consuming over 5,000 times more power than the original Transformer \cite{report}. Consequently, the demands for extensive time and considerable memory resources result in a low training throughput and impose a significant financial burden, which is often unsustainable for both corpo-rations and independent researchers. Therefore, the development of innovative train-ing strategies that aim to minimize fine-tuning time and memory costs, while main-taining high-quality output, is of crucial importance.
-    
-    \subsection{Definition of Large Language Model}
+    \subsection{Definition of Transformer-based architecture}
     Let \(\mathcal{M}_\Phi\) denote a Transformer autoregressive model with trainable parameters \(\Phi \in \mathbb{R}^n\). The model \(\mathcal{M}_\Phi\) is described with a set of Transformer blocks $\tau$, where each block $\tau_i$ contains two submodules: a multi-head attention module (MHA) (\ref{eq:mha}) and a module consisting of a Feed Forward Neural Network (FFNN) (\ref{eq:mlp}). Given the input sequence $x \in \mathbb{R}^{n}$, MHA module works with $h$ parallel heads. 
 
     \begin{equation}\label{eq:mha}
@@ -18,172 +14,161 @@
     \end{aligned}
     \end{equation}
     where $i \in \mathbb{R}$, $W_o \in \mathbb{R}^{d \times d}$ is an output projection, and \(W_q, W_k, W_v \in \mathbb{R}^{d \times d_h}\) are query, key, and value projections of the $i$-th head; $d_h$ is typically set to $d/h$. FFNN module consists of two linear transformations with a ReLU activation. 
+
     \begin{equation}\label{eq:mlp}
         FFNN(x) = ReLU(xW_{up} + b_{up})W_{down} + b_{down}, 
     \end{equation}
     where $W_{up} \in \mathbb{R}^{d \times d}$ is the up-projection matrix and $W_{down} \in \mathbb{R}^{d \times d}$ is the down-projection matrix. 
 
-\subsection{Key directions in Large Language Models fine-tuning \\ acceleration}
-    \subsubsection{Definition of the fine-tuning process}
-    Fine-tuning is the process of turning a general-purpose model into a specialized one while updating all pre-trained model parameters over a downstream task dataset.
+    Within the \llm{} there exist a concept of the  "importance" of certain structures. In this context, "importance" facilitates the identification of structures that can be removed without affecting model performance. Thus, understanding the importance of a structure helps assess its impact on the model's overall quality.
+
+    Fine-tuning is the process of turning a general-purpose model into a specialized one while updating all pre-trained model parameters over a downstream task dataset. During the fine-tuning process \llm{} parameters are updated untill the loss function reaches approximately the optimum, indicating, that the model has been converged \cite{allenzhu2019convergencetheorydeeplearning} and is ready for deployment. 
+
     Let fine-tuning data be organized as a dataset $D = \{(x_i, y_i), i = 1, \dots, N\}$, where $x_i$ is a data sample, and $y_i$ is a ground truth label; both $x_i, y_i$ are sequences of tokens. Model prediction is denoted as $\mathcal{M}_\Phi(x_i)$. Fine-tuning assumes that the model is pre-trained: let it be initialized with pre-trained weights $\Phi_0$.
 
     Full fine-tuning is the process of updating pre-trained weights to $\Phi_0 + \Delta \Phi$ so that the fine-tuning objective for $\mathcal{M}_\Phi$ is optimized over $\Phi$ (\ref{eq:full_fine_tuning}). 
-
     \begin{equation}\label{eq:full_fine_tuning}
         \max_{\Phi}\sum_{(x, y) \in D} \sum_{t = 1}^{|y|} log(\mathcal{M}_\Phi(y_t | x, y_{<t})),
     \end{equation}
     where $|y|$ is the number of tokens in th data sample, dimensionality of $|\Delta \Phi|$ is equal to $|\Phi_0|$ \cite{lora}.
-
+    
+    The resources required for full fine-tuning of a model are comparable to those needed for pre-training an \llm{}; the only difference is that the full fine-tuning necessitates a smaller amount of domain-specific data. Therefore, the development of approaches, that allow to reduce the number of required resources is of crucial importance. 
+\subsection{Key directions in Large Language Models fine-tuning \\ acceleration}
     Various modern approaches exist for reducing time and memory
-    overhead during the full fine-tuning, including model pruning \cite{model_pruning}, data reduction \cite{ecai-2024}, backpropa-gation elimination \cite{mezo}, \cite{hinton2022forwardforwardalgorithmpreliminaryinvestigations}, quantization \cite{qlora}, and Parameter-Efficient Fine-Tuning \cite{lora}.
-    
-    \subsubsection{Model pruning}
-    Model pruning is a technique aimed at reducing the model by eliminating redund-ant parameters or substructures. This process is primarily categorized into two appro-aches: structured pruning and unstructured pruning \cite{model_pruning}.
-    
-    Structured pruning involves the removal of entire substructures within the neural network, such as filters, channels, Attention heads, or Transformer blocks \cite{lisa}, \cite{li2025outlierweighedlayerwisesamplingllm}. On the other hand, unstructured pruning targets individual parameters within the neural network, setting them to zero \cite{zhou2021learningnmfinegrainedstructured}, \cite{han2016deepcompressioncompressingdeep}. For example, N:M pruning approach, which performs unstructured pruning of N weights for every continuous M weights, allows to achieve an acceleration of 47\% and memory reduction of 48\% compared to the original dense \llm{} \cite{n_m_sparsity}. Despite the benefits of model pruning, several significant drawbacks are associated with current pruning methodologies. These include a notable degradation in the model's quality, as the removal of parameters can lead to a loss of a critical information necessary for accurate predictions \cite{llm_streamline}, \cite{han}. Additionally, the process often introduces computational overhead due to the need for additional inference on calibration data to estimate the importance of different structures within a model \cite{sleb}. Finally, the efficient implementation of pruned models can sometimes require specialized hardware, further complicating their deployment and usage in practical applications \cite{n_m_sparsity}.
-
-    In conclusion, while model pruning techniques provide substantial acceleration and memory reduction, they lead to a quality drop, bring time overhead on additional inference on calibration data, and demand special hardware for efficient computation.  
+    overhead during the full fine-tuning, including data reduction \cite{ecai-2024}, Parameter-Efficient Fine-Tuning \cite{lora}, quantization \cite{qlora}, model pruning \cite{model_pruning}, backpropagation elimination \cite{mezo}, \cite{hinton2022forwardforwardalgorithmpreliminaryinvestigations}.
 
     \subsubsection{Data reduction}
-    Data reduction is the process of selectively removing less significant samples from a training dataset while maintaining the accuracy of the resultant model. This process encompasses three primary methodologies: dataset condensation or distillation, core-set selection, and importance sampling, each defined by its approach to create a compact version of the training dataset.
-    
-    Dataset distillation involves synthesizing new samples based on statistical proper-ties derived from the original dataset \cite{cazenavette2022datasetdistillationmatchingtraining}. This method aims to condense the dataset into a smaller, yet representative, set of synthetic samples which effectively capture the underlying data distribution. Coreset selection facilitates the automatic identifi-cation and extraction of a subset from the original dataset \cite{shim2021coresetsamplingefficientneural}. This approach ensures that the core elements necessary for learning are retained, thereby optimizing the training process. Importance sampling focuses on selecting samples that contribute most significantly to the model’s learning, particularly those that induce larger updates to the model's weights during training \cite{jiang2019acceleratingdeeplearningfocusing}. For example, ALOE \cite{aloe} removes data samples based on losses obtained from a currently trained model or a pre-trained one, providing up to 92\% of acceleration with quality degradation of 1.5\% compared with \lora{}. However, these methods cause an additional overhead to the training process by either requiring a full forward pass for all samples in a dataset \cite{NEURIPS2018_967990de} or training a separate network in parallel \cite{katharopoulos2017biasedimportancesamplingdeep}. 
-
-    Overall, data reduction techniques provide significant acceleration by reducing the size of the training dataset, lowering the computational resources required for model training. However, these methods introduce extra overhead during the training process.
-
-    \subsubsection{Backpropagation elimination}
-    Backpropagation elimination involves replacing the traditional backpropagation method with alternative learning rules that are less computationally expensive. The primary motivation behind this is to achieve significant reductions in both memory and time requirements. 
-    This scientific field is represented by two main directions: zeroth-order methods and localized learning strategies. 
-    
-    Zeroth-order methods estimate gradients using only two forward passes. A notable advancement in this category is the Memory-efficient Zeroth-order Optimizer (MeZO) \cite{mezo}, that efficiently implements the ZO-SGD method \cite{spall}. It has been shown to deliver performance on par with traditional backpropagation fine-tuning across various tasks. Notably, MeZO achieves up to a twelvefold reduction in memory use and up to a twofold decrease in training time. However, it requires considerably more iterations than conventional fine-tuning and only reaches acceptable levels of accuracy when combined with a specifically tailored prompt \cite{mezo}.
-    
-    The second category involves localized learning rules, particularly the Hebbian rule. The Hebbian rule \cite{hebb} draws inspiration from the structural and functional organi-zation of the human brain. It suggests that the strength of synaptic connections between neurons increases when the neurons activate simultaneously and weakens when they do not.
-
-    Despite its theoretical appeal, the primary limitation of the Hebbian rule is that its effectiveness is predominantly observed in the training of Convolutional Neural Networks \cite{Lagani_2021}, where its combination with gradient-based methods provides an accele-ration of up to 1.53x \cite{localized_learning}. Moreover,, it has demonstrated a reasonable degree of convergence when applied to large-scale datasets, such as ImageNet \cite{Lagani_2021}.
-
-    In summary, backpropagation elimination methods significantly reduce computa-tional demands by lowering memory and training time, but often require more itera-tions to achieve satisfactory accuracy or show promise only in specific applications such as CNN.
-
-    \subsubsection{Quantization}
-    Quantization is a technique used to transform high-preci-sion data into low-preci-sion data. This process is predominantly utilized to accelerate inference, but recent studies have also explored its application in enhancing the efficiency of the fine-tuning.
-    
-    One notable approach is QLoRA \cite{qlora}, which introduces a 4-bit NormalFloat data type for storing frozen pre-trained language model while maintaining computational operations, such as matrix multiplication of \lora{} adapters, in 16-bit BrainFloat precision. This method achieves a significant acceleration up to 92\% with only a minimal 1\% degradation in model performance compared to the standard \lora{} \cite{lora}. Another method, PEQA \cite{peqa}, focuses on fine-tuning the quantization scales of quan-tized Large Language Models, while keeping the integer matrices unchanged. This approach results in up to 92\% memory reduction with a relatively small quality degra-dation of 5\% compared to \lora{}.
-    Additionally, AlphaTuning is a technique that invol-ves quantizing a pre-trained LLM and fine-tuning certain quantized parameters for specific tasks \cite{AlphaTuning}. This method not only accelerates fine-tuning by 38\% but also reduces memory usage by 80\% with a quality decrease of less than 5\%.
-    
-    In conclusion, while quantization strategies significantly reduce both the time and memory required for fine-tuning, they generally result in a noticeable decline in model quality.
+        Data reduction is the process of selectively removing less significant samples from a training dataset while maintaining the accuracy of the resultant model. This process encompasses three primary methodologies: dataset condensation or distillation, core-set selection, and importance sampling, each defined by its approach to create a compact version of the training dataset.
+        
+        Dataset distillation involves synthesizing new samples based on statistical proper-ties derived from the original dataset \cite{cazenavette2022datasetdistillationmatchingtraining}. This method aims to condense the dataset into a smaller, yet representative, set of synthetic samples which effectively capture the underlying data distribution. Coreset selection facilitates the automatic identifi-cation and extraction of a subset from the original dataset \cite{shim2021coresetsamplingefficientneural}. This approach ensures that the core elements necessary for learning are retained, thereby optimizing the training process. Importance sampling focuses on selecting samples that contribute most significantly to the model’s learning, particularly those that induce larger updates to the model's weights during training \cite{jiang2019acceleratingdeeplearningfocusing}. For example, ALOE \cite{aloe} removes data samples based on losses obtained from a currently trained model or a pre-trained one, providing up to 92\% of acceleration with quality degradation of 1.5\% compared with \lora{}. Moreover, these methods cause an additional overhead to the training process by requiring a full forward pass for all samples in a dataset \cite{NEURIPS2018_967990de}. 
 
     \subsubsection{Parameter-Efficient Fine-Tuning}
-    Among all the aforementioned approaches, \peft{} emerges as a leading method for accelerating the fine-tuning of \llms{}. \peft{} focuses on updating a minimal subset of the model's parameters, significantly reducing time and memory costs, but preserving or even enhancing model accuracy \cite{han2024parameterefficientfinetuninglargemodels}. In the context of \peft{}, $\Delta \Phi$ is encoded by a much smaller-sized set of parameters $\Theta$, so that $|\Theta| \ll |\Phi_0|$, $\Delta \Phi = \Delta \Phi (\Theta)$. Thus, \peft{} aims at maximizing the fine-tuning objective over $\Theta$ (\ref{eq:peft}). 
+        Among all the aforementioned approaches, \peft{} emerges as a leading method for accelerating the fine-tuning of \llms{}. \peft{} focuses on updating a minimal subset of the model's parameters, significantly reducing time and memory costs, but preserving or even enhancing model accuracy \cite{han2024parameterefficientfinetuninglargemodels}. In the context of \peft{}, $\Delta \Phi$ is encoded by a much smaller-sized set of parameters $\Theta$, so that $|\Theta| \ll |\Phi_0|$, $\Delta \Phi = \Delta \Phi (\Theta)$. Thus, \peft{} aims at maximizing the fine-tuning objective over $\Theta$ (\ref{eq:peft}). 
 
-    \begin{equation}\label{eq:peft}
-        max_{\Theta} \sum_{(x, y) \in D} \sum_{t=1}^{|y|} log (\mathcal{M}_{{\Phi}_0 + \Delta \Phi (\Theta)} (y_t | x, y_{< t}))
-    \end{equation}
+        \begin{equation}\label{eq:peft}
+            max_{\Theta} \sum_{(x, y) \in D} \sum_{t=1}^{|y|} log (\mathcal{M}_{{\Phi}_0 + \Delta \Phi (\Theta)} (y_t | x, y_{< t}))
+        \end{equation}
 
-    \lora{} \cite{lora} is the cutting-edge approach in this field, that freezes the pre-trained model weights and injects trainable rank decomposition matrices into each layer of the Transformer architecture, greatly decreasing the number of trainable parameters for downstream tasks. Let $W_0 \in \mathbb{R}^{d_1 \times d_2}$ denote pre-trained weights of an arbitrary layer, $x$ is an input data. Then, inference of this layer, denoted as $h$ can be expressed as $h = W_0x$. Applying \lora{} to that layer modifies its forward pass as follows (\ref{eq:lora}). 
+        \lora{} \cite{lora} is de-facto standard approach in the industry, that freezes the pre-trained model weights and injects trainable rank decomposition matrices into each layer of the Transformer architecture, greatly decreasing the number of trainable parameters for downstream tasks. Let $W_0 \in \mathbb{R}^{d_1 \times d_2}$ denote pre-trained weights of an arbitrary layer, $x$ is an input data. Then, inference of this layer, denoted as $h$ can be expressed as $h = W_0x$. Applying \lora{} to that layer modifies its forward pass as follows (\ref{eq:lora}). 
 
-    \begin{equation}\label{eq:lora}
-        h = W_0x + \Delta W_x = W_0x + BAx,
-    \end{equation}
-    where $W_0, \Delta W \in \mathbb{R}^{d_1 \times d_2}, A \in \mathbb{R}^{r \times d_2}, B \in \mathbb{R}^{d_1 \times r}, r \ll (d_1, d_2)$. $A, B$ matrices are called \lora{} adapters. 
+        \begin{equation}\label{eq:lora}
+            h = W_0x + \Delta W_x = W_0x + BAx,
+        \end{equation}
+        where $W_0, \Delta W \in \mathbb{R}^{d_1 \times d_2}, A \in \mathbb{R}^{r \times d_2}, B \in \mathbb{R}^{d_1 \times r}, r \ll (d_1, d_2)$. $A, B$ matrices are called \lora{} adapters. 
 
-    By greatly decreasing the number of model parameters, \lora{} provides up to 50\% memory reduction and 150\% acceleration compared to full fine-tuning. Although \lora{} is a state-of-the-art approach, it still has several drawbacks. First, \lora{} lacks the nuanced capability for more subtle weight adjustment during the fine-tuning \cite{dora}. Second, \lora{} adapters' initialization approach could lead to a slower model conver-gence \cite{pissa}. Third, \lora{} overlooks the varying importance of different weight matri-ces \cite{adalora}. Therefore, DoRA \cite{dora}, PiSSA \cite{pissa}, and AdaLoRA \cite{adalora} are deemed promi-sing improvements of \lora{}.
+        By greatly decreasing the number of model parameters, \lora{} provides up to 50\% memory reduction and 150\% acceleration compared to full fine-tuning. Although \lora{} is a state-of-the-art approach, it still has several drawbacks. First, \lora{} lacks the nuanced capability for more subtle weight adjustment during the fine-tuning \cite{dora}. Second, \lora{} adapters' initialization approach could lead to a slower model conver-gence \cite{pissa}. Third, \lora{} overlooks the varying importance of different weight matri-ces \cite{adalora}. Therefore, DoRA \cite{dora}, PiSSA \cite{pissa}, and AdaLoRA \cite{adalora} are deemed promi-sing improvements of \lora{}.
+        
+        \dora{} \cite{dora} approach suggests decomposing the pre-trained weights $W_0$ into \textit{mag-nitude} and \textit{direction} components (\ref{eq:dora}). \textit{Magnitude} is a trainable vector $M = \|W_0\|_c$, which represents a vector-wise norm of a matrix across each column. \textit{Direction} is the ratio of the pre-trained weight matrix to its norm. The \textit{direction} component is updated using \lora{} \cite{lora}.
+        
+        \begin{equation}\label{eq:dora}
+            W = M \frac{W_0 + BA}{\|W_0 + BA\|_c}
+        \end{equation}
+
+        \dora{} provides up to 3\% of quality improvement on the fine-tuning of \llamaTwoSmall{} and \llamaTwoBig{} compared with \lora{}.
+
+        \pissa{} \cite{pissa} approach modifies the \lora{} by initializing $A$ and $B$ adapter matrices with the principal components of the original matrix $W$ computed utilizing Singular Value Decomposition. Thus, trainable adapters contain the most essential directions of $W$, that is why training adapters mirror the process of the entire model fine-tuning.  \pissa{} provides up to 21.05\% of quality improvement on \llamaTwoSmall{} fine-tuning compared with \lora{}. 
+
+        \adalora{} \cite{adalora} approach adaptively allocates the parameter budget among the weight matrices according to their importance score. It re-parametrizes the incremen-tal updates in the form of Singular Value Decomposition and modifies the \lora{} forward pass as follows (\ref{eq:adalora}). 
+
+        \begin{equation}\label{eq:adalora}
+            h = W_0x + \Delta W_x = W_0x + P \Lambda Q,
+        \end{equation}
+        where $P \in \mathbb{R}^{d_1 \times r}$ and $Q \in \mathbb{R}^{r \times d_2}$ represent singular vectors of $\Delta W$, the diagonal matrix $\Lambda \in \mathbb{R}^{r \times r}$ contains the singular values $\{\lambda_i\}_{1 \leq i \leq r}$. \adalora{} provides 1\% of quality improvement on DeBERTa-V3-base fine-tuning compared with \lora{}. 
+
+    \subsubsection{Quantization}
+        Quantization is a technique used to transform high-precision data into low-precision data. This process is predominantly utilized to accelerate inference, but recent studies have also explored its application in enhancing the efficiency of the fine-tuning.
+        
+        One notable approach is QLoRA \cite{qlora}, which introduces a 4-bit NormalFloat data type for storing frozen pre-trained language model while maintaining computational operations, such as matrix multiplication of \lora{} adapters, in 16-bit BrainFloat precision. 
+        Despite achieving a substantial memory reduction, this method provides slowdown compared to standard \lora{} approach due to quantization and dequantization of \llm{} weights. In addition, when applying the extreme low-bit quantization, the huge quantization error can adversely impact the initialization of \lora{} fine-tuning \cite{han2024parameterefficientfinetuninglargemodels}. Another method, PEQA \cite{peqa}, focuses on fine-tuning the quantization scales of quantized \llms{}, while keeping the integer matrices unchanged. This approach results in up to 92\% memory reduction, however introduces a meaningful quality degradation of 5\% compared to \lora{}.
+        Additionally, AlphaTuning is a technique that invol-ves quantizing a pre-trained LLM and fine-tuning certain quantized parameters for specific tasks \cite{AlphaTuning}. This method not only accelerates fine-tuning by 38\% but also reduces memory usage by 80\% with a quality decrease of at least 5\%.
     
-    \dora{} \cite{dora} approach suggests decomposing the pre-trained weights $W_0$ into \textit{mag-nitude} and \textit{direction} components (\ref{eq:dora}). \textit{Magnitude} is a trainable vector $M = \|W_0\|_c$, which represents a vector-wise norm of a matrix across each column. \textit{Direction} is the ratio of the pre-trained weight matrix to its norm. The \textit{direction} component is updated using \lora{} \cite{lora}.
-    
-    \begin{equation}\label{eq:dora}
-        W = M \frac{W_0 + BA}{\|W_0 + BA\|_c}
-    \end{equation}
+    \subsubsection{Model pruning}
+        Model pruning is a technique aimed at reducing the model by eliminating redund-ant parameters or substructures. This process is primarily categorized into three approaches: unstructured, semi-structured, and structured pruning \cite{model_pruning}.
 
-    \dora{} provides up to 3\% of quality improvement on the fine-tuning of \llamaTwoSmall{} and \llamaTwoBig{} compared with \lora{}.
+        Unstructured pruning removes individual parameters based on importance criterion, achieving high theoretical sparsity and minimal quality degradation. SOTA methods in this area reports less than 5\% quality drop at 50\% unstructured sparsity. However, its irregular memory access complicates hardware acceleration and performance often matches or falls bellow dense counterparts due to overheads in parameter managements.
 
-    \pissa{} \cite{pissa} approach modifies the \lora{} by initializing $A$ and $B$ adapter matrices with the principal components of the original matrix $W$ computed utilizing Singular Value Decomposition. Thus, trainable adapters contain the most essential directions of $W$, that is why training adapters mirror the process of the entire model fine-tuning.  \pissa{} provides up to 21.05\% of quality improvement on \llamaTwoSmall{} fine-tuning compared with \lora{}. 
+        Structured pruning targets entire model components (e.g. channels, layers, Transformer blocks), making it hardware-friendly, but causing significant quality degradation due to removal of large parameter groups. SOTA methods in this area provide up to 13\% quality degradation at 50\% structured weight sparsity. 
 
-    \adalora{} \cite{adalora} approach adaptively allocates the parameter budget among the weight matrices according to their importance score. It re-parametrizes the incremen-tal updates in the form of Singular Value Decomposition and modifies the \lora{} forward pass as follows (\ref{eq:adalora}). 
+        Semi-structured pruning removes N out of every M consecutive weights and thus offers a favorable compromise between accuracy and hardware efficiecncy across various GPU architectures. However, SOTA approaches in this field still provides up to 5\% quality degradation under 2:4 sparsification pattern. 
+        
+        Moreover, with weight pruning the degradation in model performance extremely increases as the proportion of pruned parameters grows. In addition, pruning process often introduces computational overhead on additional inference on calibration data or further training to recover the \llm{} performance. 
 
-    \begin{equation}\label{eq:adalora}
-        h = W_0x + \Delta W_x = W_0x + P \Lambda Q,
-    \end{equation}
-    where $P \in \mathbb{R}^{d_1 \times r}$ and $Q \in \mathbb{R}^{r \times d_2}$ represent singular vectors of $\Delta W$, the diagonal matrix $\Lambda \in \mathbb{R}^{r \times r}$ contains the singular values $\{\lambda_i\}_{1 \leq i \leq r}$. \adalora{} provides 1\% of quality improvement on DeBERTa-V3-base fine-tuning compared with \lora{}. 
+    \subsubsection{Backpropagation elimination}
+        Backpropagation elimination involves replacing the traditional backpropagation method with alternative learning rules that are less computationally expensive. The primary motivation behind this is to achieve significant reductions in both memory and time requirements. 
+        This scientific field is represented by two main directions: zeroth-order methods and localized learning strategies. 
+        
+        Zeroth-order methods estimate gradients using only two forward passes. A notable advancement in this category is the Memory-efficient Zeroth-order Optimizer (MeZO) \cite{mezo}, that efficiently implements the ZO-SGD method \cite{spall}. It has been shown to deliver performance on par with traditional backpropagation fine-tuning across various tasks. Notably, MeZO achieves up to a twelvefold reduction in memory use and up to a twofold decrease in training time. However, it requires considerably more iterations than conventional fine-tuning and only reaches acceptable levels of accuracy when combined with a specifically tailored prompt \cite{mezo}.
+        
+        The second category involves localized learning rules, particularly the Hebbian rule. The Hebbian rule \cite{hebb} draws inspiration from the structural and functional organi-zation of the human brain. It suggests that the strength of synaptic connections between neurons increases when the neurons activate simultaneously and weakens when they do not. An efficient combination of localized learning rule with backpropagation provides an acceleration by up to 77\%, however introduces a substantial quality degradation of 3.04\% on average \cite{hebb_pricai}.  
 
-    Finally, \lora{} manually attaches the adapters to all Transformer blocks by a user-defined mask. 
-
-    Therefore, there exist various approaches for fine-tuning acceleration, with the most prominent being Parameter-Efficient Fine-Tuning. Its state-of-the-art \lora{} meth-od provides considerable acceleration of up to 150\% with memory reduction of 50\% maintaining the quality comparable to full fine-tuning. However, \lora{} manually attaches adapters to all Transformer blocks, causing time and memory overhead. Thus, significant optimization opportunities are presented by selectively attaching adapters to a subset of the important Transformer blocks.
+    Therefore, there exist various approaches for fine-tuning acceleration. 
+    \begin{itemize}
+        \item \textbf{Data reduction} techniques provide significant acceleration by reducing the size of the training dataset, lowering the computational resources required for model training. However, these methods introduce extra overhead during the training process and leads to quality degradation due to removal of training samples from the dataset.
+        \item \textbf{Quantization} strategies significantly reduce both the time and memory required for fine-tuning, they generally result in a noticeable decline in model quality. 
+        \item  \textbf{Model pruning} techniques provide substantial acceleration and memory reduction, however lead to a quality drop, bring time overhead on additional inference on calibration data or retraining, and demand special hardware for efficient computation.
+        \item \textbf{Backpropagation elimination} methods significantly reduce computational demands by lowering memory and training time, but often require more iterations to achieve satisfactory accuracy or introduce quality degradation compared to backpropagation-only approaches.
+    \end{itemize}
+    Hence, Parameter-Efficient Fine-Tuning is considered the most prominent approach, since its state-of-the-art \lora{} method provides noticeable acceleration of up to 150\% with memory reduction of 50\% maintaining the quality comparable to full fine-tuning. Moreover, significant optimization opportunities of \lora{} are presented by selectively attaching adapters to a subset of the important Transformer blocks.
 
 \subsection{Existing approaches for assessing the importance  within \\ Large Language Models}
-\subsubsection{Definition of the importance}
-    The concept of the "importance" of certain structures within an \llm{} primarily arises from the field of model pruning, as discussed earlier. In this context, "impor-tance" facilitates the identification of structures that can be removed without  affecting model performance. Thus, understanding the importance of a structure helps assess its impact on the model's overall quality. Similar to model pruning, the evaluation of importance can be implemented for various structures, ranging from individual weights and layers to Transformer Blocks, and even entire model architectures.
-
+    The evaluation of importance can be implemented for various structures, ranging from individual weights to Transformer blocks, and even entire model architectures. The overview of observed methods is presented in Table \ref{tab:overview}.
+    \input{sections/tables/methods_overview_1}
 \subsubsection{Importance of separate weights}
     The Lottery Ticket Hypothesis \cite{frankle2019lotterytickethypothesisfinding} suggests that within a randomly-initialized, dense neural network exists a smaller subnetwork, or the \textit{winning ticket} which can achieve the same level of test accuracy as the full network if trained independently, often within the same or even fewer training iterations. This phenomenon has been observed in a range of architectures within both the Computer Vision and Natural Language Processing fields. For instance, a subnetwork within the LeNet architecture, constituting only 51.3\% of the original network's weights, has demonstrated the ability to surpass the full model in terms of test accuracy more rapidly. Similarly, the \textit{winning ticket} for the BERT-base model, albeit with a sparsity ratio of 90\%, can perform within one standard deviation of the full model’s performance \cite{chen2020lotterytickethypothesispretrained}.
 
-    Developing the idea of the importance of individual weights within the model, the concept of systematic outliers in \llms{} was introduced, which are defined as values that deviate significantly from the average of their distribution \cite{an2025systematicoutlierslargelanguage}. These outliers influence the model to predominantly predict the most frequent tokens, thereby affect-ing the overall quality of the model. Notably, the emergence of these outliers occurs in the Multi-Head Attention module of the Transformer block, significantly influenced by the SoftMax operation  (\ref{eq:softmax}).
-
-    \begin{equation}\label{eq:softmax}
-        \begin{aligned}
-            A_{ij} & = \text{Softmax}\left(\frac{Q_iK^T_j}{\sqrt{d_h}}\right) = \frac{\exp\left(\frac{Q_i K^T_j}{\sqrt{d_h}}\right)}{\sum_{k = 1}^{n} \exp\left(\frac{Q_i K^T_k}{\sqrt{d_h}}\right)} \\
-            \text{Let } M &= \frac{Q_i K^T_j}{\sqrt{d_h}}, \frac{Q_i K^T_k}{\sqrt{d_h}} = 0, \text{then} \frac{Q_i K^T_j}{\sqrt{d_h}} \gg \frac{Q_i K^T_k}{\sqrt{d_h}},\\
-        \end{aligned}
-    \end{equation}
-    where $Q, K$ are query and key projection matrices, $d_h$ is typically set to $d/h$, $A_{ij}$ \\ is the attention score.
-
+    Developing the idea of the importance of individual weights within the model, the concept of systematic outliers in \llms{} was introduced, which are defined as values that deviate significantly from the average of their distribution \cite{an2025systematicoutlierslargelanguage}. These outliers influence the model to predominantly predict the most frequent tokens, thereby affect-ing the overall quality of the model. Notably, the emergence of these outliers occurs in the Multi-Head Attention module of the Transformer block, significantly influenced by the SoftMax operation with dominant attention weights increasing exponentially for key values (\ref{eq:dominant_keys}), while other weights approach zero (\ref{eq:other_keys}). This imbalance in attention weights results in significant updates of the projection weights $K$ and $V$ during backpropaga-tion. If the MHA module produces extreme values due to attention outliers, as the output from the MHA module passes through the MLP block, these anomalies are further amplified by the non-linear activation inside the MLP module and concentrat-ed in the down-projection matrix. Thus, the combination of steep gradients and non-linear transformations fosters the emergence of outliers in both activations and weights. 
     \begin{equation}\label{eq:dominant_keys}
     A_{xj} = \frac{\exp(M)}{\exp(M) + (n - 1)} \approx 1
     \end{equation}
     \begin{equation}\label{eq:other_keys}
     A_{xk} = \frac{1}{\exp(M) + (n - 1)} \approx 0,
     \end{equation}
-    where $n$ is the number of elements.
-
-    This results in dominant attention weights increasing exponentially for key values (\ref{eq:dominant_keys}), while other weights approach zero (\ref{eq:other_keys}). This imbalance in attention weights results in significant updates of the projection weights $K$ and $V$ during backpropaga-tion. If the MHA module produces extreme values due to attention outliers, as the output from the MHA module passes through the MLP block, these anomalies are further amplified by the non-linear activation inside the MLP module and concentrat-ed in the down-projection matrix. Thus, the combination of steep gradients and non-linear transformations fosters the emergence of outliers in both activations and weights. 
+    let \(M = \frac{W_q (W_k^T)_j}{\sqrt{d_h}}, \frac{W_q (W_k^T)_k}{\sqrt{d_h}} = 0, \text{then} \frac{W_q (W_k^T)_j}{\sqrt{d_h}} \gg \frac{W_q (W_k^T)_k}{\sqrt{d_h}}\), $n$ is the number of elements.
     
-    There were various types of outliers \cite{an2025systematicoutlierslargelanguage} suggested, such as: 
+    Various types of outliers were suggested \cite{an2025systematicoutlierslargelanguage}, such as: 
     \begin{enumerate}
         \item \textbf{Activation outliers inside layer}. For layer outputs $h_l \in \mathbb{R}^{B \times H}$ with $B$ being the batch size, $H$ being the hidden dimension, and $\mu_h = \frac{1}{B \cdot H} \sum_{i, j} |h_{i, j}|$ being the mean absolute value of layer outputs $h_l$, the set of activation outliers inside the Transformer block is defined as follows (\ref{eq:layer_activation}).
         
         \begin{equation}\label{eq:layer_activation}
-            O = \{(i, j) | |h_{i, j} > \tau \cdot \mu_h|\},
+            O = \{(i, j) \: | \: |h_{i, j}| > \tau \cdot \mu_h\},
         \end{equation}
         where $\tau$ is a predefined threshold. 
         \item \textbf{Activation outliers inside the down-projection weight}. For down projection in-puts $x_l^{down} \in \mathbb{R}^{B \times H}$ and $\mu_{x^{down}} = \frac{1}{B \cdot H}\sum_{i, j}|x_{i, j}^{down}|$, the set of activation outliers is defined as follows (\ref{eq:down_proj_activation}). 
         \begin{equation}\label{eq:down_proj_activation}
-            O = \{(i, j) | |x_{i, j}^{down}| > \tau \cdot \mu_{x^{down}}\}
+            O = \{(i, j) \: | \: |x_{i, j}^{down}| > \tau \cdot \mu_{x^{down}}\}
         \end{equation}
         \item \textbf{Weight outliers}. For projection weights $W \in \mathbb{R}^{O \times I}$ with $O$ being output dimension, $I$ being input dimension, and $\mu_{w_{i}} = \frac{1}{I}\sum_{j}|w_{i, j}|$ being the row-wise mean absolute value of $W$, the set of weight outliers is defined as follows (\ref{eq:weight_outliers}).
         \begin{equation}\label{eq:weight_outliers}
-            O = \{(i, j) | |w_{i, j}| > \tau \cdot \mu_{w_i}\}
+            O = \{(i, j) \: | \: |w_{i, j}| > \tau \cdot \mu_{w_i}\}
         \end{equation}
         \item \textbf{Attention outliers}. For cumulative attention scores $A \in \mathbb{R}^{L \times L}$ with $L$ being a sequence length, $\hat{A_j} = \sum_{i = 1}^L A_{i, j}$ being the cumulative attention contribution for token $j$, and $\mu_A = \frac{1}{L}\sum_{j}\hat{A}_j$, the set of attention outliers is defined as follows (\ref{eq:attention_outliers}).
         \begin{equation}\label{eq:attention_outliers}
-            O = \{j | \hat{A}_j > \tau \cdot \mu_A\}
+            O = \{j \: | \: \hat{A}_j > \tau \cdot \mu_A\}
         \end{equation}
     \end{enumerate}
 
-    These systematic outliers significantly impact model quality and pose challenges for model pruning, compression, and quantization \cite{an2025systematicoutlierslargelanguage}. 
-
-    The pruning of critically important weights defined with activations can have a devastating effect on model performance, leading to a quality degradation of up to 50\% for \llamaTwoSmall{} in few-shot learning tasks \cite{yu2024superweightlargelanguage}. Conversely, preserving these crucial weights while eliminating the less important ones results in minimal quality degradation, not exceeding 2\% \cite{yu2024superweightlargelanguage}. However, even preserving these critical weights can still lead to quality degradation. The magnitude pruning approach (\ref{eq:magnitude}) \cite{han2016deepcompressioncompressingdeep}, which removes smallest absolute values weights, sometimes results in suboptimal pruning and a degradation in model performance of 15\% for the \llamaTwoSmall{} model \cite{wanda}. 
+    These systematic outliers significantly impact model quality and pose challenges for model compression techniques, such as pruning and quantization \cite{an2025systematicoutlierslargelanguage}. 
+    
+    \paragraph{Pruning}
+    In terms of pruning, the removal of weight outliers can have a devastating effect on model performance, leading to a quality degradation of up to 50\% for \llamaTwoSmall{} in few-shot learning tasks \cite{yu2024superweightlargelanguage}. Conversely, preserving these crucial weights while eliminating the less important ones results in a quality degradation, not exceeding 2\% \cite{yu2024superweightlargelanguage}. 
+    
+    However, even preserving these critical weights can still lead to quality drop. The magnitude pruning approach (\cite{han2016deepcompressioncompressingdeep}, \ref{eq:magnitude}), which removes smallest absolute values weights, sometimes results in suboptimal pruning and a degradation in a model performance on 15\% for the \llamaTwoSmall{} model \cite{wanda}. 
     \begin{equation}\label{eq:magnitude}
         i_\xi = |W|,
     \end{equation}
     where $|W|$ is the absolute value of weight matrix.
 
-    Even more advanced methodologies such as Wanda \cite{wanda} (\ref{eq:wanda}), which enhances spar-sity by considering both weight magnitudes and input activations are still facing a similar problem. Despite demonstrating a 10\% perplexity improvement for the \llamaTwoSmall{} model compared to the traditional magnitude pruning, Wanda still leads to 5-15\% of quality drop compared with the original dense model.
+    Even more advanced methodologies such as Wanda \cite{wanda} (\ref{eq:wanda}), which enhances sparsity by considering both weight magnitudes and input activations are still facing a similar problem. Despite demonstrating a 10\% perplexity improvement for the \llamaTwoSmall{} model compared to the traditional magnitude pruning, Wanda still leads to 5-15\% of quality drop compared with the original dense model.
     \begin{equation}\label{eq:wanda}
         i_T = |W| \cdot \|X_T\|_2,
     \end{equation}
-    where $X$ is the input to the layer.
 
-    Therefore, although the methods used to identify significant weights are  \\ advantageous for refining the pruning process, they still require further enhancement to preserve the performance of the original \llm{}.
-
-    In terms of quantization, several strategies have been developed to account for the significance of these weights. Outlier-aware quantization, for instance, has demon-strated superior performance, exceeding the state-of-the-art SmoothQuant \cite{xiao2024smoothquantaccurateefficientposttraining} meth-od by 1\% on both the \llamaTwoSmall{} and \llamaTwoBig{} models \cite{yu2024superweightlargelanguage}. Moreover, skipp-ing the quantization of these extremely important weights and maintaining them in the FP16 data format can enhance model quality by as much as 67\% compared to their full quantization \cite{quantization_1}. Additionally, sensitivity-based non-uniform quantization, which optimizes bit precision assignments and stores outliers and sensitive weight values in a space-efficient sparse format, results in less than 2\% quality degradation when transitioning from a 16-bit to a 4-bit format \cite{kim2024squeezellmdenseandsparsequantization}.
-    
-    Furthermore, the identification of outliers has proven beneficial during the pre-training phase of \llms{}. Disabling these outliers during training can lead to a signifi-cant 60\% reduction in model quality compared to training models that include these out-liers \cite{kovaleva2021bertbustersoutlierdimensions}.
-
-    In conclusion, identification and preservation of extremely important weights are crucial for maintaining the efficiency of models during various scenarios. However, this field still requires the development of novel unified methodologies for estimating the importance of separate weights to maintain the original model quality unchanged. 
-
+    \paragraph{Quantization}
+    In terms of quantization, several strategies have been developed to account for the significance of individual weights. Outlier-aware quantization, for instance, has demonstrated superior performance, exceeding the state-of-the-art SmoothQuant \cite{xiao2024smoothquantaccurateefficientposttraining} method by 1\% on both the \llamaTwoSmall{} and \llamaTwoBig{} models \cite{yu2024superweightlargelanguage}. Moreover, skipping the quantization of these extremely important weights and maintaining them in the FP16 data format can enhance model quality by as much as 67\% compared to their full quantization \cite{quantization_1}. Additionally, sensitivity-based non-uniform quantization, which optimizes bit precision assignments and stores outliers and sensitive weight values in a space-efficient sparse format, results in less than 2\% quality degradation when transitioning from a 16-bit to a 4-bit format \cite{kim2024squeezellmdenseandsparsequantization}.
 \subsubsection{Importance of layers}
     Moving forward, the significance of various layers within the Transformer model has been extensively studied, revealing intricate details about their functionalities and relative importance.
 
-    Previously, experiments on re-initialization and re-randomization robustness of Transformer layers inside \llms{} were conducted \cite{zhang2022layerscreatedequal}. This implies re-initializing or assigning random parameters for different model layers, respectively, while keeping the rest of the model parameters intact. As a result, it was revealed that layers within these networks can be classified as either robust or critical: robust layers, when reset to their initial values, do not significantly impact the model's performance. This suggests that not all layers are equally important, and some, especially in over-capacitated networks trained with stochastic gradient descent, are inherently less critical due to the network’s self-restricting complexity \cite{zhang2022layerscreatedequal}.
+    Previously, experiments on re-initialization and re-randomization robustness of Transformer layers inside \llms{} were conducted \cite{zhang2022layerscreatedequal}. This implies re-initializing or assigning random parameters for different model layers, respectively, while keeping the rest of the model parameters intact. As a result, it was revealed that layers within these networks can be classified as either robust or critical: robust layers, when reset to their initial values, do not significantly impact the model's performance. This suggests that not all layers are equally important, and some, especially in over-capacitated networks trained with stochastic gradient descent, are inherently less critical due to the model self-restricting complexity \cite{zhang2022layerscreatedequal}.
     
     Besides, it was observed that individual Attention heads within the Transformer model serve distinct roles in the generation process \cite{voita2019analyzingmultiheadselfattentionspecialized}. Specifically, certain Attention heads are pivotal for identifying syntactic and dependency relationships, highlighting the specialized functions of these components within the architecture. This research also demonstrated that the encoder retains its efficacy despite a considerable reduction in the number of Attention heads, indicating a potential for optimization in the model design \cite{voita2019analyzingmultiheadselfattentionspecialized}.
     
@@ -194,16 +179,12 @@
     Adding to the discourse, He et al. \cite{he2024matterstransformersattentionneeded} discovered a high level of redundancy within MHA layers, suggesting that a substantial portion of these layers could be removed without notably impairing the model's performance. This finding points towards potential efficiencies in model architecture by minimizing unnecessary layers.
     
     Lastly, Tian et al. \cite{tian2024jomademystifyingmultilayertransformers} elucidated the intricate relationship between attention logits and MLP weights, proposing that explicit updates to self-attention may be redundant. This is due to the implicit incorporation of self-attention functionalities in the lower MLP layers, further emphasizing the possibility of streamlining Transformer architectures without sacrificing performance.
-
-    Thus, the investigation into the importance of layers within \llms{} constitutes a rapidly evolving field that generates a considerable volume of research. These studies indicate that the layers within \llms{} have varying impacts on the final model quality. Specifically, according to research, the Multi-Head Attention module ap-pears to be somewhat redundant, whereas the Multi-Layer Perceptron critically influences the quality of the model’s performance.
     
 \subsubsection{Importance of Transformer blocks}
     Moving on to larger structures within \llms{}, the saliency of the whole Transfor-mer blocks could be estimated. 
     
-    \cite{men2024shortgptlayerslargelanguage} corroborates the notion of redundancy in Transformer blocks within \llms{}, particularly noting that the redundancy is more pronounced in the middle and later layers, with the initial and final layers being more critical. This differential importance across Transformer blocks implies varying contributions to the model’s effectiveness, with the final Transformer block being particularly significant.
-    
-    Various methodologies have been proposed to assess the importance of Transfor-mer blocks in \llms{}.
-    Inspired by the aforementioned Wanda \cite{wanda} approach, \ows{} \cite{ows} selecti-vely prunes Transformer blocks based on their outlier distribution, stating that outliers mostly presented in the first and the last Transformer blocks. \ows{} allows to achieve a 12\% reduction in memory usage and a modest 3\% quality improvement over \lora{}. However, \ows{}'s extensive parameters updates make it time-inefficient. 
+    Various methodologies have been proposed to assess the importance of Transformer blocks in \llms{}.
+    Inspired by the aforementioned Wanda \cite{wanda} approach, \ows{} \cite{ows} selectively prunes Transformer blocks based on their outlier distribution, stating that outliers mostly presented in the first and the last Transformer blocks. \ows{} allows to achieve a 12\% reduction in memory usage and a modest 3\% quality improvement over \lora{}. However, \ows{}'s extensive parameters updates make it time-inefficient. 
     
     UIDL \cite{uidl} states that layer-to-layer evolution of representations for a Transformer is given by a residual iteration equation (\ref{eq:uidl_1}).
     \begin{equation}\label{eq:uidl_1}
@@ -225,7 +206,7 @@
 
     The proposed approach allows to achieve a 40\% reduction in layers without a quality drop for the LLaMA2-70B model \cite{uidl}. However, \uidl{} requires additional inference on calibration data, which increases time overhead. Besides, cosine similari-ty was efficiently utilized in ShortGPT \cite{men2024shortgptlayerslargelanguage} leading to 18\% of acceleration with quality drop of 14\%.
     
-    Another approach is \sleb{} \cite{sleb}, which utilizes perplexity as a metric to evaluate Transformer block importance based on the assumption, that redundant blocks contri-bute less to the model’s outputs, and their removal leads to smaller degradation in perplexity. 
+    Another approach is \sleb{} \cite{sleb}, which utilizes perplexity as a metric to evaluate Transformer block importance based on the assumption, that redundant blocks contri-bute less to the model’s outputs, and their removal leads to smaller degradation in perplexity (\ref{eq:sleb}). 
     \begin{equation}\label{eq:sleb}
         i_T = exp\{-\frac{1}{S}\sum log p_\theta^n (X_T^{(S)}|X_{<T}^{(S)})\},
     \end{equation}
@@ -241,62 +222,33 @@
 
     \shortllama{} allows achieving 23\% of acceleration with 7\% of quality drop on LLaMA2-7B compared to the original model \cite{kim2024shortenedllamadepthpruning}. Notably, like \sleb{}, \shortllama{} incurs additional time overhead due to the need for inference on the calibration dataset.
 
-    In conclusion, the observations made about the importance of Transformer blocks align with those noted in other considered substructures. Although current techniques have demonstrated the ability to achieve a 27\% improvement in time and memory efficiency, they still lack a universally effective methodology and lead to considerable quality degradation of more than 20\%. Therefore, it is crucial to further refine and develop importance methods, that enhance model performance without compromising the quality.
-
     \subsubsection{Importance of predicted architectures}
-    Finally, the importance of the full architectures could be estimated. Such approa-ches are being developed within the field of Neural Architecture Search. Neural Architecture Search (NAS) is a technique for automating the design of neural networks. Instead of manually developing neural network architectures, NAS algorithms explore and discover optimal architectures for specific tasks. 
+    Finally, the importance of the full architectures could be estimated. Such approaches are being developed within the field of Neural Architecture Search. Neural Architecture Search (NAS) is a technique for automating the design of neural networks. Instead of manually developing neural network architectures, NAS algorithms explore and discover optimal architectures for specific tasks. 
     
-    For this purpose NAS utilizes a special controller to estimate the performance of a predicted neural architecture on a proxy dataset. However, this evaluation method, particularly when based on validation accuracy, can be computationally prohibitive. For example, NASnet approach requires more than 2000 GPU days to identify optimal model architecture \cite{nasnet}. 
+    For this purpose NAS utilizes a special controller to estimate the performance of a predicted neural architecture on a proxy dataset. However, this evaluation method, particularly when based on validation accuracy, can be computationally prohibitive. For example, NASnet \cite{nasnet} approach requires more than 2000 GPU days to identify optimal model architecture. 
     
-    In response to the high computational demands of traditional NAS methods, zero-cost proxies present a more resource-efficient alternative. Zero-cost methods rely heavily on importance heuristics to approximate the performance of neural architec-tures without the need for extensive training. For example, the TF-TAS \cite{tf_tas} approach utilizes synaptic diversity (\ref{eq:synaptic_diversity}) for the MHA module and synaptic saliency (\ref{eq:synaptic_saliency}) for the FFNN module. TF-TAS improves upon existing techniques, leading to a 4\% quality improve-ment compared with manually designed ResNet and MobileNet-V3.
-    \begin{equation}\label{eq:synaptic_diversity}
-        i = \|\frac{\partial \mathcal{L}}{\partial W}\| \odot \|W\|_{nuc},
-    \end{equation}
-    where $\mathcal{L}$ is a loss, $W$ is a weight matrix of a layer inside Transformer, $\|\|_{nuc}$ is the nuclear norm of a matrix. 
-    \begin{equation}\label{eq:synaptic_saliency}
-        i = \frac{\partial \mathcal{L}}{\partial W} \odot W
-    \end{equation}
-    At the same time, TF-TAS significantly reduces the number of GPU days required to estimate the predicted architecture compared with AutoFormer \cite{autoformer_ti} and ViTAS \cite{vitas}.
+    In response to the high computational demands of traditional NAS methods, zero-cost proxies present a more resource-efficient alternative. Zero-cost methods rely heavily on importance heuristics to approximate the performance of neural architec-tures without the need for extensive training. For example, the TF-TAS \cite{tf_tas} approach utilizes synaptic diversity for the MHA module and synaptic saliency for the FFNN module. TF-TAS improves upon existing techniques, leading to a 4\% quality improve-ment compared with manually designed ResNet and MobileNet-V3. At the same time, TF-TAS significantly reduces the number of GPU days required to estimate the predicted architecture compared with AutoFormer \cite{autoformer_ti} and ViTAS \cite{vitas}.
 
-    A comprehensive comparison study of 15 zero-cost proxies applicable to Trans-former architectures an \llms{} \cite{LPZero} revealed varying levels of its effectiveness. These proxies were assessed through Kendall and Spearman correlations, with values ran-ging from -1 to 1, where higher values indicate better predictive accuracy of neural architec-ture rankings vis-à-vis fully trained models. Despite their utility, many pro-xies exhibi-ted low correlation values, with Kendall's ranging from 0.01 to 0.5 and Spear-man's from 0.1 to 0.5 \cite{LPZero}.
+    A comprehensive comparison study of 15 zero-cost proxies applicable to Trans-former architectures an \llms{} \cite{LPZero} revealed varying levels of its effectiveness. These proxies were assessed through Kendall and Spearman correlations, with values ran-ging from -1 to 1, where higher values indicate better predictive accuracy of neural architec-ture rankings vis-à-vis fully trained models. Despite their utility, many proxies exhibited low correlation values, with Kendall's ranging from 0.01 to 0.5 and Spear-man's from 0.1 to 0.5 \cite{LPZero}.
 
-    \input{sections/tables/methods_overview_1}
-    \input{sections/tables/methods_overview_2}
+    Therefore, various structures of \llms{}, including individual weights, layers, and Transformer blocks, as well as entire model architectures, can be evaluated in terms of their importance, specifically regarding their impact on the overall performance of the model. Such importance assessment methods are actively utilized in different optimization strategies for \llm{} deployment during inference, such as sparsification and quantization. Among the structural components considered, the Transformer block is particularly noteworthy. Existing research has already demonstrated the potential for compressing \llm{}, achieving up to a 30\% time and memory usage reduction by assessing the importance of Transformer blocks and retaining only the most significant ones. In contrast, approaches that focus on individual elements or layers have not achieved comparable resource savings, while methods focusing on entire architectures require substantial time and memory resources and utilized only within a Neural Architecture Search field. Hence, the analysis of Transformer block importance emerges as the most promising direction in this context, being particularly popular in the field of model inference. 
 
-    Therefore, overview of observed methods is presented in Table \ref{tab:overview_1} and Table \ref{tab:overview_2}.
-    analysis of the current methods for evaluating the importance of various structures within \llms{} has highlighted several challenges:
-    \begin{enumerate}
-        \item \textbf{Lack of a Unified Methodology}. There is no standard method that applies across different scenarios, making many heuristics inapplicable or unrepresenta-tive in other contexts. Moreover, many existing solutions are completely inef-fective in assessing the importance of structures within the \llm{}.
-        \item \textbf{Quality Degradation}. While existing solutions minimize computational costs, they often lead to a quality reduction from at least 1-2\% to complete destruction of \llms{}' language modelling capabilities.
-        \item \textbf{Computational Costs}. Most importance-based methods require extensive \\ additional inference on calibration data, which increases time overhead. 
-    \end{enumerate}
+    However, while existing solutions for estimating the Transformer block importance successfully minimize computational costs, the often lead to a substantial quality degradation of \llm{} performance. As a step towards addressing this challenge, the assessment of the importance of Transformer blocks can be further utilized within a fine-tuning field, concurrently optimizing fine-tuning costs. 
+    
+    The next chapter presents a novel fine-tuning strategy, that dynamically allocates \lora{} adapters to to essential Transformer blocks based on efficient importance analysis to further accelerate the fine-tuning process, while preserving the model quality.
 
-    As a step towards addressing these challenges and the problem of optimizing the costs of fine-tuning of \llms{}, this work will 
-    introduce a novel fine-tuning strategy that dynamically allocates \lora{} adapters to Transformer blocks based on efficient importance analysis to estimate the Transformer blocks suitable for freezing to further accelerate the fine-tuning process. The importance analysis doesn't introduce any additional time overhead, while efficient fine-tuning allows for improving \llm{} quality after freezing certain units within the \llm{}.
+\subsection{Overview of considered competitors}
+To validate the efficacy of \ourmethodshort{}, a comparative analysis was employed with alternative approaches in the domain of 
+fine-tuning acceleration and importance analy-sis of \llm{} layers and Transformer blocks.
 
-\subsection{Existing approaches for assessing the convergence  within \\ Large Language Models}
-    \subsubsection{Definition of the convergence}
-        Convergence of the \llm{} is the process of achieving the certain optimal by updating model parameters. During training, when the loss function reaches approximately the optimum, neural network parameters stop actively changing \cite{allenzhu2019convergencetheorydeeplearning}.
-        
-    \subsubsection{Convergence of Transformer blocks}
-        There are various approaches to understanding the convergence of neural networks. To begin with, the cosine similarity \cite{draganov2024hiddenpitfallscosinesimilarity} could be applied based on the assumption that as the loss function reaches the minimum point, an angle between the weights of the model decreases, indicating that the weights have been trained and since then hardly changed. Another approach is to use the Frobenius norm  \cite{allenzhu2019convergencetheorydeeplearning}, \cite{arora2019convergenceanalysisgradientdescent} to estimate the difference between model weights on different training steps. Finally, gradient values \cite{liu2021autofreezeautomaticallyfreezingmodel} can be used to get the update rate of model weights, therefore determining converged Transformer blocks as changing the slowest. 
+Examined methods to analyze the importance of Transformer blocks include:
+\begin{enumerate}
+    \item \uidl{} \cite{uidl} approach. After estimating the most important model layers during the inference on calibration data and further pruning of the least essential struc-tures, \uidl{} utilizes QLoRA fine-tuning to enhance model quality. 
+    \item The \sleb{} \cite{sleb} approach.
+    \item The \shortllama{} \cite{kim2024shortenedllamadepthpruning} approach. 
+    \item The \ows{} \cite{ows} approach. After estimating the importance during the inference on calibration data and further pruning of the least essential structures, \ows{} utilizes full fine-tuning to enhance model quality.
+    \item The \lisa{} \cite{lisa} approach, which randomly selects Transformer blocks during the process of full fine-tuning. This method does not rely on any deliberate heuristic to estimate the importance, that is why it can be considered as the reference approach for understanding the effect of the "importance". 
+\end{enumerate}
+Notably, all these approaches, except \lisa{}, employ different heuristics to estimate Transformer block importance, which could provide insights into the effectiveness of existing metrics and their correlation with \llm{} performance. Also, it helps to evaluate whether using these importance measures can optimize the fine-tuning pro-cess compared to \lora{}. For practical implementation, the official implementation of con-sidered approaches was taken from corresponding Github repositories: \uidl{} \cite{uidl_github}, \sleb{} \cite{sleb_github}, \shortllama{} \cite{short_llama_github}, \ows{} \cite{ows}, \lisa{} \cite{lisa}.
 
-        \begin{definition}[Convergence metrics]\label{def:convergence}
-        Let \(\nabla\) denote the accumulated gradient, \(T\) denote the training interval, \(\|\cdot\|_F\) is a Frobenius norm, then convergence metrics can be defined as:
-        \begin{enumerate}
-            \item Cosine Similarity \cite{draganov2024hiddenpitfallscosinesimilarity}:
-            \begin{align}
-                \hat{c}(W_{\xi}) = \frac{W_{\xi(T)} \cdot W_{\xi(T - 1)}}{\|W_{\xi(T)}\|_2 \cdot \|W_{\xi(T - 1)}\|_2}
-            \end{align}
-            \item Frobenius Norm \cite{arora2019convergenceanalysisgradientdescent}
-            \begin{align}
-                \hat{c}(W_{\xi}) = \|W_{\xi(T)} - W_{\xi(T - 1)}\|_F
-            \end{align}
-            \item Gradient Norm \cite{liu2021autofreezeautomaticallyfreezingmodel}
-            \begin{align}
-                \hat{c}(W_{\xi}) = \frac{|\|\nabla W_{\xi(T)}\|_2 - \|\nabla W_{\xi(T - 1)}\|_2|}{\|\nabla W_{\xi(T - 1)}\|_2}
-            \end{align}
-        \end{enumerate}
-    \end{definition}
-
-        Therefore, the convergence analysis of Transformer blocks could be applied to accelerate the fine-tuning process, and blocks, that are closer to convergence are suitable for freezing. 
+Since \lora{} is the cutting-edge approach for fine-tuning acceleration, it was selec-ted as a baseline for computational experiments on quality and acceleration of conside-red approaches. In addition, the most prominent modifications of \lora{}, such as \dora{} \cite{dora}, \pissa{} \cite{pissa}, \adalora{} \cite{adalora}, and \lisa{} \cite{lisa} were chosen as reference methods during the evaluation.
