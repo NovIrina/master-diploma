@@ -2,36 +2,36 @@
 \addcontentsline{toc}{section}{Chapter 3. Evaluation of the proposed method}
 \setcounter{section}{3}
 \setcounter{subsection}{0}
-To assess the feasibility of the \ourmethodshort{}, comprehensive evaluation of the proposed solution has been applied with results being presented in the article "". 
+To assess the feasibility of the \ourmethodshort{}, comprehensive evaluation of the proposed solution has been applied with detailed results being presented in the article \cite{Demidovskij2025}. 
 
-\subsection{Training and evaluation protocols}
+\subsection{Protocol}
 For the evaluation purposes, six \llms{} with different numbers of parameters were chosen to estimate the performance on different scales of \llms{}: 
 \begin{itemize}
-    \item \gpt{} with 24 Transformer blocks;
-    \item \llamaTwoSmall{} with 32 Transformer blocks;
-    \item \llamaTwoBig{} with 40 Transformer blocks;
-    \item \qwenSmall{} with 36 Transformer blocks;
-    \item \qwenMedium{} with 28 Transformer blocks;
-    \item \qwenLarge{} with 64 Transformer blocks.
+    \item \gpt{} (24 Transformer blocks);
+    \item \llamaTwoSmall{} (32 Transformer blocks);
+    \item \llamaTwoBig{} (40 Transformer blocks);
+    \item \qwenSmall{} (36 Transformer blocks);
+    \item \qwenMedium{} (28 Transformer blocks);
+    \item \qwenLarge{} (64 Transformer blocks).
 \end{itemize}
 The \gpt{} model was taken from \textit{transformers v4.33.2},  \llamaTwoSmall{}, \llamaTwoBig{}, \qwenSmall{}, \qwenMedium{}, \qwenLarge{} models were taken from HuggingFace hub \cite{huggingface:llama2-7b}, \cite{huggingface:llama2-13b}, \cite{huggingface:qwen-small}, \cite{huggingface:qwen-medium}, \cite{huggingface:qwen-large}.
 
-Firstly, for the \uidl{}, \sleb{}, \shortllama{}, and \ows{} approaches, the impor-tance estimation of Transformer blocks was conducted on a validation set of the \alpaca{} dataset. Subsequently, for the \uidl{} the QLoRA fine-tuning was applied to key Transformer blocks, while non-essential ones were left unchanged.
-In contrast, for \ows{} the full fine-tuning of critical units was utilized, while others were frozen. Originally, \sleb{} and \shortllama{} do not employ fine-tuning to improve model performance. However, following the pruning of non-essential Transformer blocks, which involved their total removal, the \lora{} fine-tuning method was utilized to important Transformer blocks. The implementation of \lora{}, \dora{}, \pissa{}, and \adalora{} approaches was taken from the \textit{peft v.0.18.0} library \cite{peft}.
+As the closest competitors, the \uidl{}, \sleb{}, \shortllama{}, \ows{}, and \lisa{} approaches were chosen. For practical implementation, the official implementation of considered approaches was taken from corresponding Github repositories: \uidl{} \cite{uidl_github}, \sleb{} \cite{sleb_github}, \shortllama{} \cite{short_llama_github}, \ows{} \cite{ows}, \lisa{} \cite{lisa}. Firstly, for the \uidl{}, \sleb{}, \shortllama{}, and \ows{} approaches, the importance estimation of Trans-former blocks was conducted on a validation set of the \alpaca{} dataset. Subsequently, for the \uidl{} the QLoRA fine-tuning was applied to key Transformer blocks, while non-essential ones were left unchanged.
+In contrast, for \ows{} the full fine-tuning of critical units was utilized, while others were frozen. Originally, \sleb{} and \shortllama{} do not employ fine-tuning to improve model performance. However, follow-ing the pruning of non-essential Transformer blocks, which involved their total remo-val, the \lora{} fine-tuning method was utilized to important Transformer blocks. The implementation of \lora{}, \dora{}, \pissa{}, and \adalora{} approaches was taken from the \textit{peft v.0.18.0} library \cite{peft}.
 
 \input{sections/tables/hardware_software}
 \input{sections/tables/training_protocol}
 Used training hardware and software are described in Table \ref{tab:hardware}. Training protocol for each model is described in Table \ref{tab:training_protocol}. The \textit{Ratio of Transformer blocks} row means the ratio of Transformer blocks selected for fine-tuning with chosen approaches. Notably, the \gpt{} model requires a higher number of updated layers than all other models, because a greater number of layers in the model allows for a smaller amount of updated layers, since a substantial proportion of the layers will still be updated.
 
-After the fine-tuning, in order to estimate the final quality of the model, zero-shot accuracy was measured on commonsense reasoning datasets: PIQA \cite{piqa}, HellaSwag \cite{hellaswag}, Winogrande \cite{winogrande}, ARC \cite{arc}, OpenbookQA \cite{openbookqa}, MMLU \cite{mmlu} using the lm-evaluation-harness package \cite{lm_eval}. Zero-shot PPL was measured on language modelling dataset WikiText2 \cite{wikitext}. The detailed results for each of these datasets are presented in the paper.
+After the fine-tuning, in order to estimate the final quality of the model, zero-shot accuracy was measured on commonsense reasoning datasets: PIQA \cite{piqa}, HellaSwag \cite{hellaswag}, Winogrande \cite{winogrande}, ARC \cite{arc}, OpenbookQA \cite{openbookqa}, MMLU \cite{mmlu} using the lm-evaluation-harness package \cite{lm_eval}. Zero-shot PPL was measured on language modelling dataset WikiText2 \cite{wikitext}. The detailed results for each of these datasets are presented in the paper \cite{Demidovskij2025}.
 \input{sections/tables/results_1}
 \subsection{Analysis of the obtained results}
 \input{sections/tables/results_2}
-Computational experiments with chosen models and approaches are presented in Table \ref{tab:quality_1} and Table \ref{tab:quality_2}. Average results of fine-tuning quality and acceleration for \ourmethodshort{} without additional convergence analysis are presented in Table \ref{tab:acceleration_1}, Table \ref{tab:acceleration_2}, and Table \ref{tab:quality_2}. For LLaMA-family and Qwen-family models, the evaluation of \lisa{} and \ows{} approaches was not presented, as memory requirements on the full fine-tuning of these models did not fit to used hardware.
+Computational experiments with chosen models and approaches are presented in Table \ref{tab:quality_1} and Table \ref{tab:quality_2}. For LLaMA-family and Qwen-family models, the evaluation of \lisa{} and \ows{} approaches was not presented, as memory requirements on the full fine-tuning of these models did not fit to used hardware.
 
 \ourmethodshort{} provides an average acceleration of 33.1\%
 with a considerable maximum speedup of 44.8\% for \llamaTwoBig{}
-with a quality decrease of less than 0.1\%.  In addition, \ourmethodshort{} significantly outperforms \pissa{}, \dora{}, and \adalora{} from the point of acceleration, and provides 0.8\% of quality improvement compared to \adalora{}. However, it leads to 0.1\% and 1.6\% quality decrease compared to \dora{} and \pissa{} respectively as \pissa{} employs SVD initialization
+with a quality decrease of less than 0.1\%.  In addition, \ourmethodshort{} significantly outperforms \pissa{}, \dora{}, and \adalora{} from the point of acceleration, and provides 0.8\% of quality improvement compared to \textit{Ada-LoRA}. However, it leads to 0.1\% and 1.6\% quality decrease compared to \dora{} and \pissa{} respectively as \pissa{} employs SVD initialization
 of \lora{} \(A, B\) adapters and \dora{} incorporates additional magnitude vector during the fine-tuning.
 
 Performance analysis of \ourmethodshort{} compared to the such state-of-the-art pruning approaches as UIDL, SLEB, and Shortened-LLaMA revealed, that \ourmethodshort{} provides 1.1\%, 43.8\%, and 79.6\% quality improvement compared to \uidl{}, \sleb{}, and \\ \shortllama{}, respectively, and outperforms all these methods from the point of acceleration.
@@ -44,7 +44,7 @@ Performance analysis of \ourmethodshort{} compared to the such state-of-the-art 
         \label{fig:ablation_alpha}
     \end{figure}
     Ablation study of the \(\alpha\) hyperparameter of
-    \ourmethodshort{} is presented in Figure \ref{fig:ablation_alpha}. It was analyzed in terms of their impact on the resulting quality and acceleration. Obtained results demonstrates that increasing \(\alpha\) significantly affects both acceleration and model quality. In particular, a maximum speedup of 72.6\% is observed at \(\alpha\) = 0.2, where only 20\% of the Transformer blocks are trained. However, it leads to a 3.3\% increase in perplexity, suggesting underfitting. Minimal quality degradation (0.3\%) occurs at higher \(\alpha\) values (0.8 and 0.9), where 80-90\% of the Transformer blocks are trained initially. 
+    \ourmethodshort{} is presented in Figure \ref{fig:ablation_alpha}. It was analyzed in terms of impact on the resulting quality and acceleration. Obtained results demonstrates that increasing \(\alpha\) significantly affects both acceleration and model quality. In particular, a maximum speedup of 72.6\% is observed at \(\alpha\) = 0.2, where only 20\% of the Transformer blocks are trained. However, it leads to a 3.3\% increase in perplexity, suggesting underfitting. Minimal quality degradation (0.3\%) occurs at higher \(\alpha\) values (0.8 and 0.9), where 80-90\% of the Transformer blocks are trained initially. 
     \begin{figure}[H]
         \centering
         \includegraphics[width=0.6\textwidth]{sections/figures/ablation_h.pdf}

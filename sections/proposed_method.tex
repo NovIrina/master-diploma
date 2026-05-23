@@ -2,7 +2,7 @@
 \addcontentsline{toc}{section}{Chapter 2. Development of an approach to accelerate the fine-tuning through importance analysis}
 \setcounter{section}{2} 
 \setcounter{subsection}{0}
-    The discussed idea of estimating the importance of Transformer blocks formed the basis of the proposed method \ourmethodshort{} (\ourmethodsFull{}). \ourmethodshort{} selectively assigns and re-assigns \lora{} adapters based on Transformer blocks importance during the fine-tuning process with subsequent reduction of the number of Transformer blocks.
+    The discussed idea of estimating the importance of Transformer blocks formed the basis of the proposed method \ourmethodshort{} (\ourmethodsFull{}). \ourmethodshort{} selectively assigns and re-assigns \lora{} adapters based on Transformer blocks impor-tance during the fine-tuning process with subsequent reduction of the number of Transformer blocks.
     \begin{figure}[H]
         \centering
         \includegraphics[width=0.99\textwidth]{sections/figures/id_lora.pdf}
@@ -11,7 +11,9 @@
     Let \(h\) denote history defined as the number of steps to collect importance and convergence statistics, \(\alpha\) denote the ratio of Transformer blocks to be selected for fine-tuning.
 
     Initially, the fine-tuning process is divided into several periods, during which the algorithm switches the trainable Transformer
-    blocks. Each \ourmethodshort{} period has 3 stages: statistics collection, selection of trainable Transformer blocks, and fine-tuning of the selected blocks. At the beginning of each stage, layer-wise importance statistic is collected during h steps. Next, algorithm determines unimportant Transformer blocks and removes them from the selection. After that, importance sampling of Transformer blocks is applied, and the ratio of the most important Transformer blocks (\(\alpha\)) is selected for further fine-tuning. At the same time, \lora{} \(A, B\) adapters for not-trainable Transformer blocks are merged up to the end of the fine-tuning. Merging non-updatable adapters allows to further accelerate the fine-tuning process and increase memory reduction. Obviously, with each training period, the number of trainable Transformer blocks diminishes. As a result, fine-tuning stops once there are no more trainable Transformer blocks. As an alternative or a complementary strategy to importance analysis, a convergence analysis was proposed by team to further reduce the number of trainable Transformer blocks. 
+    blocks. Each \ourmethodshort{} period has 3 stages: statistics collection, selection of trainable Transformer blocks, and fine-tuning of the selected blocks. At the beginning of each stage, layer-wise importance statistic is collected during h steps. Next, algorithm determines unimportant Transformer blocks and removes them from the selection. After that, importance sampling of Transformer blocks is applied, and the ratio of the most important Transformer blocks (\(\alpha\)) is selected for further fine-tuning. At the same time, \lora{} \(A, B\) adapters for not-trainable Transformer blocks are merged up to the end of the fine-tuning. Merging non-updatable adapters allows to further accelerate the fine-tuning process and inc-rease memory reduction. Obviously, with each training period, the number of trainable Transformer blocks diminishes. As a result, fine-tuning stops once there are no more trainable Transformer blocks. 
+    
+    As an alternative or a complementary strategy to importance analysis, a conver-gence analysis was proposed by research team in Huawei to further reduce the number of trainable Transformer blocks. The detailed explanation of this part of the method can be find in the article \cite{Demidovskij2025}.
 
     The full \ourmethodshort{} method with importance analysis as my personal contribution and convergence analysis as team proposal is described in Algorithm 1.
 
@@ -68,9 +70,9 @@
         \end{algorithmic}
     \end{algorithm}
     \subsection{Importance-based Transformer blocks selection}
-        \paragraph{Statistics collection phase} The first step of \ourmethodshort{} is dedicated to statistics collection over several iterations of fine-tuning. During \(h\) steps, importance scores are accumulated for each layer of the model. As an importance estimation method several metrics have been considered, including Magnitude rule, Wanda rule, and Cosine Similarity rule. Notably, Magnitude \cite{han2016deepcompressioncompressingdeep} and Wanda \cite{wanda} importance rules are adapted to Transformer block importance estimation as described in Definition \ref{def:transformer-block-importance}.
+        \paragraph{Statistics collection phase} The first step of \ourmethodshort{} is dedicated to statistics collec-tion over several iterations of fine-tuning. During \(h\) steps, importance scores are accumulated for each layer of the model. As an importance estimation method several metrics have been considered, including standard approaches, such as Magnitude (\ref{eq:magnitude}), Wanda (\ref{eq:wanda}), and cosine similarity (\ref{eq:uidl_3}). Notably, Magnitude \cite{han2016deepcompressioncompressingdeep} and Wanda \cite{wanda} importance rules are adapted to Transformer block importance estimation as described in Definition \ref{def:transformer-block-importance}.
         \begin{definition}\label{def:transformer-block-importance}
-            Let \(T\) denote Transformer blocks, \(i_{\xi}\) denote importance score for \(\xi\) layer inside it, then importance of Transformer block is defined as:
+            Let \(T\) denote Transformer blocks, \(i_{\xi}\) denote importance score for \(\xi\) lay-er inside it, then importance of Transformer block is defined as:
             \begin{equation}\label{eq:aggregation}
                 I(T) = \frac{\sum_{\xi \in T} i_{\xi}}{|T|}
             \end{equation}
@@ -85,7 +87,9 @@
         \end{equation}
         where \(p\) denotes the threshold.
     \subsection{Convergence-based Transformer blocks selection}
-    Besides the importance analysis, another solution proposed by the team is an optional convergence analysis, which identifies fully trained Transformer blocks that could be frozen, thereby further reducing the number of trainable Transformer blocks. Once per \(h\) steps, additional statistics for convergence analysis are accumulated.
+    Besides the importance analysis, another solution proposed by the team is an optional convergence analysis, which identifies fully trained Transformer blocks that could be frozen, thereby further reducing the number of trainable Transformer blocks. The detailed explanation of this part of the method can be find in the article \cite{Demidovskij2025}.
+    
+    Once per \(h\) steps, additional statistics for convergence analysis are accumulated. When statistic has been collected, the converged Transformer blocks are identified with the help of convergence rule (\ref{def:convergence-rule}) and corresponding metrics (\ref{def:convergence-inequality}). After that, converged Transformer blocks are frozen up to the end of training, which leads to further reduction of the number of trainable parameters and an earlier stop of the fine-tuning process.
     \begin{definition}\label{def:convergence-rule}
         Let \(\varepsilon\) denote convergence threshold, \(\hat{c}\) denote convergence metric. Then convergence rule for a layer is defined as:
         \begin{equation*}
@@ -102,11 +106,10 @@
             C(T) = \frac{\sum_{\xi \in T}c(W_{\xi})}{|T|} > \delta
         \end{equation}
     \end{definition}
-    When statistic has been collected, the converged Transformer blocks are identified with with the help of convergence rule (\ref{def:convergence-rule}) and corresponding metrics (\ref{def:convergence-inequality}). After that, converged Transformer blocks are frozen up to the end of training, which leads to further reduction of the number of trainable parameters and an earlier stop of the fine-tuning process.
     \subsection{Key differences from existing approaches}
         \begin{itemize}
-            \item Current approaches utilizes importance-based pruning of Transformer blocks on inference, introducing considerable quality degradation. In contrast, \ourmethodshort{} integrates the pruning process into the parameter-efficient fine-tuning with \lora{}, thereby preventing performance degradation.
-            \item Prior methods incur extra computational costs by requiring inference on calibration data for importance estimation. Conversely, \ourmethodshort{} identifies essential Transformer blocks during the fine-tuning process without additional overhead and calibration data. 
+            \item Existing approaches utilize importance-based pruning of Transformer blocks on inference, introducing considerable quality degradation. In contrast, \ourmethodshort{} integrates the pruning process into the Parameter-Efficient Fine-Tuning with \lora{}, thereby preventing performance degradation.
+            \item Prior methods incur extra computational costs by requiring an additional infe-rence on calibration data for importance estimation. Conversely, \ourmethodshort{} identifies essential Transformer blocks during the fine-tuning process without additional overhead and calibration data. 
             \item Current state-of-the-art approaches manually attach the \lora{} adapters to all Transformer blocks before the fine-tuning process. On the contrary, \ourmethodshort{} offers an innovative approach that enables automatic assignment of \lora{} \(A, B\) adapters only to important Transformer blocks. 
             \item \ourmethodshort{} applies the idea of additional convergence analysis to further reduce the number of trainable Transformer blocks.
         \end{itemize}
