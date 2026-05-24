@@ -1,16 +1,17 @@
 \begin{table}[!t]
     \caption{Quality results after the fine-tuning with considered approaches on \gpt{}, \llamaTwoSmall{}, and \llamaTwoBig{}.}
     \centering  
-    \scriptsize
+    \footnotesize
+    \renewcommand{\arraystretch}{0.5}
     \begin{tabularx}{0.99\textwidth}{AM|TTT}
 
         \toprule
 
         \bfseries Model &
         \bfseries Method & 
-        \bfseries Average accuracy, \(\uparrow\) & 
-        \bfseries Perplexity, \(\downarrow\) &
-        \bfseries Acceleration, \(\uparrow\) \\
+        \bfseries Average accuracy, (\(\uparrow\)) & 
+        \bfseries Perplexity, (\(\downarrow\)) &
+        \bfseries Acceleration, (\(\%, \uparrow\)) \\
 
         \midrule 
         \multirow{6}{*}{\gpt{}}

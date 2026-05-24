@@ -13,7 +13,7 @@
 
     To address the aforementioned challenges, the following results were obtained:
     \begin{itemize}
-        \item The result of the first year's study is a comprehensive overview of existing approaches to assess the importance of Transformer blocks, followed by the conclusion that cosine similarity is the preffered option in terms of quality.
+        \item The result of the first year's study is a comprehensive overview of existing approaches to assess the importance of Transformer blocks, followed by the conclusion that cosine similarity is the preffered option in terms of quality \cite{Novikova2026}.
         \item The result of the second year's study is the development of a novel \lora{}-based fine-tuning approach, \ourmethodshort{}, that utilizes importance estimation for efficient reallocation of \lora{} adapters.
     \end{itemize}
 
@@ -24,11 +24,11 @@
     The results showed that:
     \begin{itemize}
         \item Proposed \ourmethodshort{} demonstrates a notable acceleration of 29\% for \qwenSmall{}, 33\% for \qwenMedium{}, 29\% for \llamaTwoSmall{}, 45\% for \llamaTwoBig{}, and 38\% for \qwenLarge{} without sacrificing the accuracy compared to baseline \lora{} approach. 
-        \item Proposed \ourmethodshort{} significantly outperforms all considered reference impor-tance estimation and fine-tuning acceleration approaches from the point of fine-tuning time and quality. 
+        \item Proposed \ourmethodshort{} significantly outperforms all considered reference fine-tuning acceleration methods from the point of fine-tuning time. 
     \end{itemize}
 
 \subsection{Relevance}
-    This study was conducted as a part of a research project at the Huawei aimed at accelerating the fine-tuning of \llms{}. The results of this study were presented at the European Conference on Artificial Intelligence 2025 (ECAI, Rank A), Neuroinformatics 2024, and published in the articles in journals indexed in Scopus (Q4, Q3). An individual contribution involves formulating the main concept of the proposed \ourmethodshort{} method, which proposes to attach \lora{} \(A, B\) adapters based on the importance analysis during the fine-tuning process. The second innovation of the method -- convergence analysis -- was not proposed by an author. 
+    This study was conducted as a part of a research project at the Huawei aimed at accelerating the fine-tuning of \llms{}. The results of this work were presented at the European Conference on Artificial Intelligence 2025 (ECAI, Rank A), Neuroinformatics 2024, and published in the articles in journals indexed in Scopus (Q4, Q3). An individual contribution involves formulating the main concept of the proposed \ourmethodshort{} method, which proposes to attach \lora{} \(A, B\) adapters based on the importance analysis during the fine-tuning process. The second innovation of the method -- convergence analysis -- was not proposed by an author. 
 
 \subsection{Future directions}
     Work in this area is ongoing, with efforts focused on further developing the proposed solution \ourmethodshort{} for pre-training and Reinforcement Learning tasks.

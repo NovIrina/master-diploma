@@ -4,6 +4,9 @@
 \setcounter{subsection}{0}
 To assess the feasibility of the \ourmethodshort{}, comprehensive evaluation of the proposed solution has been applied with detailed results being presented in the article \cite{Demidovskij2025}. 
 
+\subsection{Software implementation}
+    The software implementation is made in a form of Python package, adhering to the principles of object-oriented programming, and is fully compatible with all the considered \llms{}. The code is the intellectual property of Huawei and cannot be disclosed in this work.
+
 \subsection{Protocol}\label{subsec:protocol}
 For the evaluation purposes, six \llms{} with different numbers of parameters were chosen to estimate the performance on different scales of \llms{}: 
 \begin{itemize}
@@ -18,21 +21,22 @@ The \gpt{} model was taken from \textit{transformers v4.33.2},  \llamaTwoSmall{}
 
 \input{sections/tables/hardware_software}
 \input{sections/tables/training_protocol}
-Since \lora{} is the de-facto standard approach for fine-tuning acceleration, it was selected as a baseline for computational experiments on quality and acceleration of considered approaches. In addition, the most prominent modifications of \lora{}, such as \dora{} \cite{dora}, \pissa{} \cite{pissa}, \adalora{} \cite{adalora}, and \lisa{} \cite{lisa} were chosen as reference methods during the evaluation. The implementation of these approaches was taken from the \textit{peft v.0.18.0} library \cite{peft}.
+Since \lora{} is the de-facto standard approach for fine-tuning acceleration, it was selected as a baseline for computational experiments on quality and acceleration. In addition, the most prominent modifications of \lora{}, such as \dora{} \cite{dora}, \pissa{} \cite{pissa}, \adalora{} \cite{adalora} were chosen as reference methods during the evaluation. The implementation of these approaches was taken from the \textit{peft v.0.18.0} library \cite{peft}.
 
 Used training hardware and software are described in Table \ref{tab:hardware}. Training protocol for each model is described in Table \ref{tab:training_protocol}. The \textit{Ratio of Transformer blocks} row means the ratio of Transformer blocks selected for fine-tuning with chosen approaches. Notably, the \gpt{} model requires a higher number of updated layers than all other models, because a greater number of layers in the model allows for a smaller amount of updated layers, since a substantial proportion of the layers will still be updated.
 
-After the fine-tuning, in order to estimate the final quality of the model, zero-shot accuracy was measured on commonsense reasoning datasets: PIQA \cite{piqa}, HellaSwag \cite{hellaswag}, Winogrande \cite{winogrande}, ARC \cite{arc}, OpenbookQA \cite{openbookqa}, MMLU \cite{mmlu} using the lm-evaluation-harness package \cite{lm_eval}. Zero-shot PPL was measured on language modelling dataset WikiText2 \cite{wikitext}. The detailed results for each of these datasets are presented in the paper \cite{Demidovskij2025}.
+After the fine-tuning, in order to estimate the final quality of the model, zero-shot accuracy was measured on commonsense reasoning datasets: PIQA \cite{piqa}, HellaSwag \cite{hellaswag}, Winogrande \cite{winogrande}, ARC \cite{arc}, OpenbookQA \cite{openbookqa}, MMLU \cite{mmlu} using the lm-evaluation-harness package \cite{lm_eval}. Zero-shot PPL was measured on language modelling dataset WikiText2 \cite{wikitext}. In this work, an average accuracy and perplexity are presented. The detailed results for each of these datasets are presented in the paper \cite{Demidovskij2025}.
 \input{sections/tables/results_1}
 \subsection{Analysis of the obtained results}
 Computational experiments with chosen models and approaches are presented in Table \ref{tab:quality_1}. For \qwenLarge{} model, the evaluation of \dora{} approach was not presented, as memory requirements did not fit to used hardware.
 
 \ourmethodshort{} provides an average acceleration of 33.1\%
 with a considerable maximum speedup of 44.8\% for \llamaTwoBig{}
-with a quality decrease of less than 0.1\%.  In addition, \ourmethodshort{} significantly outperforms \pissa{}, \dora{}, and \adalora{} from the point of acceleration, and provides 0.8\% of quality improvement compared to \textit{Ada-LoRA}. However, it leads to 0.1\% and 1.6\% quality decrease compared to \dora{} and \pissa{} respectively as \pissa{} employs SVD initialization
-of \lora{} \(A, B\) adapters and \dora{} incorporates additional magnitude vector during the fine-tuning..
+with a quality decrease of less than 0.2\%.  In addition, \ourmethodshort{} significantly outperforms \pissa{}, \dora{}, and \adalora{} from the point of acceleration, and provides 0.4\% of quality improvement compared to \textit{\adalora{}} and comparable performance to \textit{\dora{}}. However, it leads 0.2\% quality decrease compared to \pissa{} as \pissa{} employs an SVD initialization
+of \lora{} \(A, B\) adapters, which provides them with the most important information from the original weights \(W\).
 
 \subsection{Sensitivity analysis}
+    Sensitivity analysis of \(\alpha\) and \(h\) hyperparameters of \ourmethodshort{} and importance metrics is presented in Figure \ref{fig:ablation_alpha}, Figure \ref{fig:ablation_h}, and Figure \ref{fig:ablation_importance}. They were analyzed in terms of their impact on the resulting quality and acceleration.
     \subsubsection{Analysis of hyperparameter \(\alpha\)}
         \begin{figure}[H]
             \centering
@@ -41,7 +45,7 @@ of \lora{} \(A, B\) adapters and \dora{} incorporates additional magnitude vecto
             \label{fig:ablation_alpha}
         \end{figure}
         Ablation study of the \(\alpha\) hyperparameter of
-        \ourmethodshort{} is presented in Figure \ref{fig:ablation_alpha}. It was analyzed in terms of impact on the resulting quality and acceleration. Obtained results demonstrates that increasing \(\alpha\) significantly affects both acceleration and model quality. In particular, a maximum speedup of 72.6\% is observed at \(\alpha\) = 0.2, where only 20\% of the Transformer blocks are trained. However, it leads to a 3.3\% increase in perplexity, suggesting underfitting. Minimal quality degradation (0.3\%) occurs at higher \(\alpha\) values (0.8 and 0.9), where 80-90\% of the Transformer blocks are trained initially. 
+        \ourmethodshort{} is presented in Figure \ref{fig:ablation_alpha}. Obtained results demonstrate that increasing \(\alpha\) significantly affects both acceleration and model quality. In particular, a maximum speedup of 72.6\% is observed at \(\alpha\) = 0.2, where only 20\% of the Transformer blocks are trained. However, it leads to a 3.3\% increase in perplexity, suggesting underfitting. Minimal quality degradation (0.3\%) occurs at higher \(\alpha\) values (0.8 and 0.9), where 80-90\% of the Transformer blocks are trained initially. \(\alpha\) = 0.6 is identified as the optimal setting for balancing speed and quality. 
     \subsubsection{Analysis of hyperparameter \(h\)}
         \begin{figure}[H]
             \centering
@@ -50,8 +54,7 @@ of \lora{} \(A, B\) adapters and \dora{} incorporates additional magnitude vecto
             \label{fig:ablation_h}
         \end{figure}
         Ablation study of the \(h\) hyperparameter of
-        \ourmethodshort{} is presented in Figure \ref{fig:ablation_h}. It was analyzed in terms of their impact on the resulting quality and acceleration. According to the achieved results, variations do not
-        significantly impact quality, with only a 0.3\% change in perplexity was observed between \(h\) = 1 and \(h\) = 500. The smallest hvalue accelerates fine-tuning by 29.8\%, indicating that even a single training step can adequately capture the importance of a Transformer block. This observation is supported by the relative stability of model quality across different \(h\) settings, as shown in Figure 4b. \(h\) = 10 is identified as the optimal setting for balancing speed and quality. 
+        \ourmethodshort{} is presented in Figure \ref{fig:ablation_h}. According to the achieved results, variations in hyperparameter \(h\) do not significantly impact quality, with only a 0.3\% change in perplexity was observed between \(h\) = 1 and \(h\) = 500. The smallest \(h\) value accelerates fine-tuning by 29.8\%, indicating that even a single training step can adequately capture the importance of a Transformer block. This observation is supported by the relative stability of model quality across different \(h\) settings, as shown in Figure \ref{fig:ablation_h}. \(h\) = 10 is identified as the optimal setting for balancing speed and quality. 
     \subsubsection{Analysis of importance metrics}
         \begin{figure}[H]
             \centering
@@ -59,13 +62,17 @@ of \lora{} \(A, B\) adapters and \dora{} incorporates additional magnitude vecto
             \caption{Sensitivity analysis of \ourmethodshort{} to considered importance metrics. \(\alpha\) is 0.6, \(h\) is 10.}
             \label{fig:ablation_importance}
         \end{figure}
-        Despite the fact, that cosine similarity is considered an optimal choice, an additional ablation study on applying standard pruning metrics, such as Magnitude (\ref{eq:magnitude}) and Wanda \(\ref{eq:wanda}\) was performed. Notably, Magnitude \cite{han2016deepcompressioncompressingdeep} and Wanda \cite{wanda} importance rules are adapted to Transformer block importance estimation as described in Definition \ref{def:transformer-block-importance}.
+         An ablation study of importance metrics is presented in Figure \ref{fig:ablation_importance}. 
+         Despite the fact, that cosine similarity is considered an optimal choice, an additional ablation study on applying standard pruning metrics, such as Magnitude (\ref{eq:magnitude}) and Wanda (\(\ref{eq:wanda}\)) was performed. Notably, Magnitude and Wanda importance metrics are adapted to Transformer block importance estimation as described in Definition \ref{def:transformer-block-importance}.
         \begin{definition}\label{def:transformer-block-importance}
             Let \(T\) denote Transformer blocks, \(i_{\xi}\) denote importance score for \(\xi\) layer inside it, then importance of Transformer block is defined as:
             \begin{equation}\label{eq:aggregation}
                 I(T) = \frac{\sum_{\xi \in T} i_{\xi}}{|T|}
             \end{equation}
         \end{definition}
-
-        This ablation study of importance metrics is presented in Figure \ref{fig:ablation_importance}. It reveals that the Magnitude metric yields the best balance between acceleration and quality. In contrast, the Wanda metric, despite considering input activations, provides a higher speedup at the
+        Sensitivity analysis reveals that the Magnitude metric yields the best balance between acceleration and quality. In contrast, the Wanda metric, despite considering input activations, provides a higher speedup at the
         cost of increased quality degradation by 2\% compared to the baseline. Although cosine similarity decelerates the fine-tuning on 7\% compared with the Magnitude, it degrades model quality the least, representing the most suitable choice, as minimizing the drop in model quality is particularly crucial in the context of importance-based fine-tuning. This conclusion is also consistent with the results of last year's study.
+    \subsection{Summary}
+        In conclusion, the quality and acceleration of the proposed \ourmethodshort{} was estimated across different \llm{} scales (350M, 3B, 7B, 13B, 32B) and a broad range of tasks. According to the obtained results, \ourmethodshort{} significantly outperforms the baseline \lora{} approach and reference \dora{}, \pissa{}, and \adalora{} methods from the point of acceleration. \ourmethodshort{} provides on average 33\% of fine-tuning time speedup compared to \lora{} approach. Moreover, \ourmethodshort{} achieves near-lossless performance with an average quality degradation of 0.2\% compared to baseline \lora{} approach. 
+        
+        According to the conducted ablation study, the hyperparameter \(\alpha=0.6\) and hyperparameter \(h=10\) are considered an optimal choice with importance metric being cosine similarity. 

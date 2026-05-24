@@ -14,8 +14,7 @@
     top=20mm
 }
 \linespread{1.5}
-
-\usepackage{babel} 
+\usepackage[english]{babel}
 \usepackage{tempora}
 \usepackage{newtxmath} 
 \usepackage{ragged2e}
@@ -34,8 +33,28 @@
 \usepackage{subcaption}
 
 
+\usepackage[
+ bibstyle=gost-numeric-min,
+% citestyle=gost-authoryear-min,
+ citestyle=gost-numeric-min,
+% citestyle=authoryear,
+%    bibstyle=gost-numeric-min,
+%  babel=other,
+%  backend=biber,
+% defernumbers=true,% Нумерация начинается как только встречается группа.
+ sorting=none,
+ url=false,
+ doi=false,
+ isbn=false,
+ movenames=false,
+ maxcitenames=2,
+ maxbibnames=10
+]{biblatex}
+
+
 \let\openbox\relax
 \usepackage{amsthm}
+\addbibresource{ref/annot.bib}
 
 
 
@@ -58,6 +77,7 @@
     \include{sections/conclusion}
 \addcontentsline{toc}{section}{Reference List}
 \nocite{*}
-\bibliographystyle{ref/IEEEannot}
-\bibliography{ref/annot}
+% \bibliographystyle{ref/IEEEannot}
+% \bibliography{ref/annot}
+\printbibliography
 \end{document}
