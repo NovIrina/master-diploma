@@ -8,7 +8,7 @@
         \item Introduce a novel fine-tuning approach for \llms{}, that dynamically assigns \lora{} adapters during the fine-tuning based on importance analysis of Transfor-mer blocks.
     \end{itemize}
 
-    Throughout the research, various modern approaches for reducing time and memo-ry overhead during the fine-tuning were considered with LoRA de facto being the state-of-the-art solution in the field. However, \lora{} can be substantially optimized by estimating the importance of Transformer blocks within the \llm{}. The concept of "importance" was deemed as the identification of structures that can be removed without significantly affecting model performance. It was found, that existing impor-tance-based compression techniques are mostly utilized during inference, leading to considerable quality degradation. In addition, they provide substantial costs due to additional inference on calibration data.
+    Throughout the research, various modern approaches for reducing time and memo-ry overhead during the fine-tuning were considered with LoRA de facto being the state-of-the-art solution in the field. However, \lora{} can be substantially optimized by estimating the importance of Transformer blocks within the \llm{}. The concept of \textit{importance} was deemed as the identification of structures that can be removed without significantly affecting model performance. It was found, that existing impor-tance-based compression techniques are mostly utilized during inference, leading to considerable quality degradation. In addition, they provide substantial costs due to additional inference on calibration data.
 
 
     To address the aforementioned challenges, the following results were obtained:
@@ -24,7 +24,7 @@
     The results showed that:
     \begin{itemize}
         \item Proposed \ourmethodshort{} demonstrates a notable acceleration of 29\% for \qwenSmall{}, 33\% for \qwenMedium{}, 29\% for \llamaTwoSmall{}, 45\% for \llamaTwoBig{}, and 38\% for \qwenLarge{} without sacrificing the accuracy compared to baseline \lora{} approach. 
-        \item Proposed \ourmethodshort{} provides a considerable speedup compared to baseline \lora{} and all considered reference fine-tuning acceleration methods. 
+        \item Proposed \ourmethodshort{} provides a considerable speedup compared to all considered reference fine-tuning acceleration methods. 
     \end{itemize}
 
 \subsection{Relevance}
