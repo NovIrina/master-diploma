@@ -8,27 +8,22 @@ To assess the feasibility of the \ourmethodshort{}, comprehensive evaluation of 
     The software implementation is made in a form of Python package, adhering to the principles of object-oriented programming, and is fully compatible with all the considered \llms{}. The code is the intellectual property of Huawei and cannot be disclosed in this work.
 
 \subsection{Protocol}\label{subsec:protocol}
-For the evaluation purposes, six \llms{} with different numbers of parameters were chosen to estimate the performance on different scales of \llms{}: 
-\begin{itemize}
-    \item \gpt{} (24 Transformer blocks);
-    \item \llamaTwoSmall{} (32 Transformer blocks);
-    \item \llamaTwoBig{} (40 Transformer blocks);
-    \item \qwenSmall{} (36 Transformer blocks);
-    \item \qwenMedium{} (28 Transformer blocks);
-    \item \qwenLarge{} (64 Transformer blocks).
-\end{itemize}
-The \gpt{} model was taken from \textit{transformers v4.33.2},  \llamaTwoSmall{}, \llamaTwoBig{}, \qwenSmall{}, \qwenMedium{}, \qwenLarge{} models were taken from HuggingFace hub \cite{huggingface:llama2-7b}, \cite{huggingface:llama2-13b}, \cite{huggingface:qwen-small}, \cite{huggingface:qwen-medium}, \cite{huggingface:qwen-large}.
+For the evaluation purposes, six \llms{} of different scale were used: \gpt{}, \llamaTwoSmall{}, \llamaTwoBig{}, \qwenSmall{}, \qwenMedium{}, \qwenLarge{}. All \llms{} except \gpt{} were taken from HuggingFace hub \cite{huggingface:llama2-7b}, \cite{huggingface:llama2-13b}, \cite{huggingface:qwen-small}, \cite{huggingface:qwen-medium}, \cite{huggingface:qwen-large}.
+The \gpt{} model was taken from \textit{transformers v4.33.2}.
 
 \input{sections/tables/hardware_software}
 \input{sections/tables/training_protocol}
-Since \lora{} is the de-facto standard approach for fine-tuning acceleration, it was selected as a baseline for computational experiments on quality and acceleration. In addition, the most prominent modifications of \lora{}, such as \dora{} \cite{dora}, \pissa{} \cite{pissa}, \adalora{} \cite{adalora} were chosen as reference methods during the evaluation. The implementation of these approaches was taken from the \textit{peft v.0.18.0} library \cite{peft}.
 
-Used training hardware and software are described in Table \ref{tab:hardware}. Training protocol for each model is described in Table \ref{tab:training_protocol}. The \textit{Ratio of Transformer blocks} row means the ratio of Transformer blocks selected for fine-tuning with chosen approaches. Notably, the \gpt{} model requires a higher number of updated layers than all other models, because a greater number of layers in the model allows for a smaller amount of updated layers, since a substantial proportion of the layers will still be updated.
+As \lora{} is the state-of-the-art method for accelerating fine-tuning, it was utilized as the primary baseline in computational experiments evaluating both performance and speed. Alongside \lora{}, several cutting-edge modification —- including \dora{} \cite{dora}, \pissa{} \cite{pissa}, and \adalora{} \cite{adalora} -- were incorporated as comparison benchmarks during assessment. The implementations for these methods were sourced from the \textit{peft v.0.18.0} library \cite{peft}.
 
-After the fine-tuning, in order to estimate the final quality of the model, zero-shot accuracy was measured on commonsense reasoning datasets: PIQA \cite{piqa}, HellaSwag \cite{hellaswag}, Winogrande \cite{winogrande}, ARC \cite{arc}, OpenbookQA \cite{openbookqa}, MMLU \cite{mmlu} using the lm-evaluation-harness package \cite{lm_eval}. Zero-shot PPL was measured on language modelling dataset WikiText2 \cite{wikitext}. In this work, an average accuracy and perplexity are presented. The detailed results for each of these datasets are presented in the paper \cite{Demidovskij2025}.
+Details regarding the hardware and software used for training can be found in Table \ref{tab:hardware}, while the specific training protocols for each model are outlined in Table \ref{tab:training_protocol}.
+
+After the fine-tuning, \llms{} were evaluated on a wide range of commonsense reasoning datasets, including PIQA \cite{piqa}, HellaSwag \cite{hellaswag}, Winogrande \cite{winogrande}, ARC \cite{arc}, OpenbookQA \cite{openbookqa}, MMLU \cite{mmlu} to estimate zero-shot accuracy using the lm-evaluation-harness package \cite{lm_eval}. In addition, zero-shot PPL was measured on language modelling dataset WikiText2 \cite{wikitext}. In this work, an average accuracy and perplexity are presented. The detailed results for each of these datasets are presented in the paper \cite{Demidovskij2025}.
 \input{sections/tables/results_1}
 \subsection{Analysis of the obtained results}
-Computational experiments with chosen models and approaches are presented in Table \ref{tab:quality_1}. For \qwenLarge{} model, the evaluation of \dora{} approach was not presented, as memory requirements did not fit to used hardware.
+Table \ref{tab:quality_1} shows the results of computational experiments conducted using the selected models and methods. The performance of the \dora{} approach with the \qwenLarge{} model is not reported because its memory demands exceeded the capabilities of the available hardware.
+
+For \gpt{} model the hyperparameter \(\alpha\) of \ourmethodshort{} is 0.8, for all other models \(\alpha - 0.6\). The \gpt{} model necessitates updating a larger number of layers compared to the other models, since it has much fewer trainable parameters compared to other considered \llms{}. In constrast, the greater depth of \llm{} means that updating a smaller proportion of its layers still involves a substantial absolute number being fine-tuned. For all evaluated models the hyperparameter \(h = 10\).
 
 \ourmethodshort{} provides an average acceleration of 33.1\%
 with a considerable maximum speedup of 44.8\% for \llamaTwoBig{}

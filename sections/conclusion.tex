@@ -4,7 +4,7 @@
 \subsection{Results}
     This work is the result of a two-year research study, which was aimed to address to primary objectives:
     \begin{itemize}
-        \item Provide an in-depth examination of existing importance estimation techniques across various scenarios, with a particular focus on the importance estimation of Transformer blocks to optimize the fine-tuning process.
+        \item Conduct a comprehensive analysis of current methods used to assess importance of different sturctures within an \llm{}, focusing on the evaluation of critical Transformer blocks to enhance the efficiency of the fine-tuning.
         \item Introduce a novel fine-tuning approach for \llms{}, that dynamically assigns \lora{} adapters during the fine-tuning based on importance analysis of Transfor-mer blocks.
     \end{itemize}
 
@@ -17,18 +17,18 @@
         \item The result of the second year's study is the development of a novel \lora{}-based fine-tuning approach, \ourmethodshort{}, that utilizes importance estimation for efficient reallocation of \lora{} adapters.
     \end{itemize}
 
-    During the evaluation, as a baseline, state-of-the-art \lora{} approach has been used. In addition, quality and acceleration results of the most prominent modifications of \lora{} -- \dora{}, \pissa{}, and \adalora{} -- were added for reference. 
+    During the evaluation, as a baseline, state-of-the-art \lora{} approach has been used. In addition, quality and acceleration results of such modifications of \lora{} as \dora{}, \pissa{}, and \adalora{}, were added for reference. 
 
-    The 6 models' fine-tuning was estimated with considered approaches, including \gpt{}, \llamaTwoSmall{}, \llamaTwoBig{}, \qwenSmall{}, \qwenMedium{}, and \qwenLarge{}. After the fine-tuning, in order to estimate the final quality of the model, zero-shot accuracy was measured on commonsense reasoning datasets (details are provided in Section \ref{subsec:protocol}).
+    The fine-tuning quality of \ourmethodshort{} was estimated on 6 \llms{} of different scale, including \gpt{}, \llamaTwoSmall{}, \llamaTwoBig{}, \qwenSmall{}, \qwenMedium{}, and \qwenLarge{}. After the fine-tuning, zero-shot accuracy was measured on commonsense reasoning datasets and perplexity was measured on WikiText2 (details are provided in Section \ref{subsec:protocol}).
 
     The results showed that:
     \begin{itemize}
         \item Proposed \ourmethodshort{} demonstrates a notable acceleration of 29\% for \qwenSmall{}, 33\% for \qwenMedium{}, 29\% for \llamaTwoSmall{}, 45\% for \llamaTwoBig{}, and 38\% for \qwenLarge{} without sacrificing the accuracy compared to baseline \lora{} approach. 
-        \item Proposed \ourmethodshort{} significantly outperforms all considered reference fine-tuning acceleration methods from the point of fine-tuning time. 
+        \item Proposed \ourmethodshort{} provides a considerable speedup compared to baseline \lora{} and all considered reference fine-tuning acceleration methods. 
     \end{itemize}
 
 \subsection{Relevance}
-    This study was conducted as a part of a research project at the Huawei aimed at accelerating the fine-tuning of \llms{}. The results of this work were presented at the European Conference on Artificial Intelligence 2025 (ECAI, Rank A), Neuroinformatics 2024, and published in the articles in journals indexed in Scopus (Q4, Q3). An individual contribution involves formulating the main concept of the proposed \ourmethodshort{} method, which proposes to attach \lora{} \(A, B\) adapters based on the importance analysis during the fine-tuning process. The second innovation of the method -- convergence analysis -- was not proposed by an author. 
+    This research was carried out within a project at Huawei, with the objective of accelerating the fine-tuning of \llms{}. The results of this work were presented at the European Conference on Artificial Intelligence 2025 (ECAI, Rank A), Neuroinformatics 2024, and published in the articles in journals indexed in Scopus (Q4, Q3). An individual contribution involves formulating the main concept of the proposed \ourmethodshort{} method, which proposes to attach \lora{} \(A, B\) adapters based on the importance analysis during the fine-tuning process. The second innovation of the method -- convergence analysis -- was not proposed by an author. 
 
 \subsection{Future directions}
     Work in this area is ongoing, with efforts focused on further developing the proposed solution \ourmethodshort{} for pre-training and Reinforcement Learning tasks.
